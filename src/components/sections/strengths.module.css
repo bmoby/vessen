@@ -5,32 +5,73 @@
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 56px 24px 72px;
+  padding: 96px 24px 120px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  grid-template-columns: 1fr;
+  gap: 0;
 }
 
-.card {
-  background: #fbfbfb;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  border-radius: 12px;
-  padding: 20px;
+.block {
+  position: relative;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0 0 32px 0;
 }
 
-.cardTitle {
+.accentBar {
+  display: none;
+}
+
+.blockHeader {
+  margin-left: 0;
+}
+
+.blockTitle {
   font-family: var(--font-playfair), serif;
-  font-size: 1.25rem;
-  margin-bottom: 6px;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  letter-spacing: 0.01em;
+  color: var(--text);
 }
 
-.cardText {
-  color: #333;
-  opacity: 0.9;
+.blockSubtitle {
+  color: var(--muted);
+  margin-top: 6px;
 }
 
-@media (max-width: 900px) {
-  .container {
-    grid-template-columns: 1fr;
+.blockBody {
+  color: var(--text);
+  margin-top: 14px;
+  line-height: 1.7;
+  max-width: 72ch;
+}
+
+.divider {
+  display: none;
+}
+
+.block:hover {
+}
+
+.block:focus-within {
+  outline: none;
+}
+
+.block + .block::before {
+  content: "";
+  display: block;
+  height: 1px;
+  margin: 40px 0 32px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--border),
+    transparent
+  );
+}
+
+@media (min-width: 900px) {
+  .block {
+    padding: 40px 36px;
   }
 }
