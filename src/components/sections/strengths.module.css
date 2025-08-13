@@ -1,0 +1,36 @@
+.section {
+  background: #fff;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 56px 24px 72px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.card {
+  background: #fbfbfb;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.cardTitle {
+  font-family: var(--font-playfair), serif;
+  font-size: 1.25rem;
+  margin-bottom: 6px;
+}
+
+.cardText {
+  color: #333;
+  opacity: 0.9;
+}
+
+@media (max-width: 900px) {
+  .container {
+    grid-template-columns: 1fr;
+  }
+}

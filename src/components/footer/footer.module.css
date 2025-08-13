@@ -1,0 +1,22 @@
+.footer {
+  background: #0a0a0a;
+  color: #ededed;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  font-family: var(--font-playfair), serif;
+  letter-spacing: 0.08em;
+}
+
+.meta {
+  opacity: 0.85;
+}

@@ -1,17 +1,17 @@
-import IntroTitle from "@/components/shared/IntroTitle";
+import IntroOverlay from "@/components/shared/IntroOverlay";
+import Header from "@/components/navbar/Header";
+import Hero from "@/components/hero/Hero";
+import Strengths from "@/components/sections/Strengths";
+import Footer from "@/components/footer/Footer";
 
 export default function HomePage() {
   return (
-    <main
-      style={{
-        background: "#FBF9F5",
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <IntroTitle text="VESSEN" />
+    <main>
+      <IntroOverlay text="VESSEN" />
+      <Header />
+      <Hero />
+      <Strengths />
+      <Footer />
     </main>
   );
 }

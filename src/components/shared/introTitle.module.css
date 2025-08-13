@@ -12,7 +12,6 @@
   line-height: 1.05;
   letter-spacing: 0.12em; /* starts wider, will tighten in */
   color: transparent;
-  -webkit-text-stroke: 1px rgba(0, 0, 0, 0.65); /* Stroke → Fill */
   text-align: center;
   will-change: transform, opacity, filter, letter-spacing, background-position;
 }
@@ -133,15 +132,12 @@
 @keyframes fillIn {
   0% {
     color: transparent;
-    -webkit-text-stroke: 1px rgba(0, 0, 0, 0.65);
   }
   60% {
     color: rgba(0, 0, 0, 0.55);
-    -webkit-text-stroke: 1px rgba(0, 0, 0, 0.4);
   }
   100% {
     color: #000;
-    -webkit-text-stroke: 0 rgba(0, 0, 0, 0);
   }
 }
 
