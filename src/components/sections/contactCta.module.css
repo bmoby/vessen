@@ -1,0 +1,139 @@
+.section {
+  background: #fff;
+  border-top: 1px solid var(--border);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 72px 24px 84px;
+  display: grid;
+  gap: 20px;
+}
+
+.copy {
+  max-width: 720px;
+}
+.title {
+  font-family: var(--font-playfair), serif;
+  color: var(--text);
+  font-size: clamp(1.6rem, 3.2vw, 2.2rem);
+  letter-spacing: 0.01em;
+}
+.subtitle {
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  text-decoration: none;
+}
+
+.action:hover {
+  background: #fff;
+}
+.action:focus-visible {
+  outline: 2px solid var(--highlight);
+  outline-offset: 2px;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  opacity: 0.95;
+}
+
+@media (max-width: 900px) {
+  .actions {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Minimal list-style contacts */
+.list {
+  display: grid;
+  gap: 4px;
+}
+.link {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  padding: 12px 0;
+  color: var(--text);
+  text-decoration: none;
+}
+.link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.link:focus-visible {
+  outline: 2px solid var(--highlight);
+  outline-offset: 2px;
+}
+.linkLeft {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+.linkIcon {
+  width: 20px;
+  height: 20px;
+  opacity: 0.9;
+}
+.linkText {
+  letter-spacing: 0.01em;
+}
+.item {
+  position: relative;
+}
+.item + .item::before {
+  content: "";
+  display: block;
+  height: 1px;
+  margin: 4px 0;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--border),
+    transparent
+  );
+}
+.iconWrap {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: #fff;
+}
+.linkArrow {
+  opacity: 0.6;
+  transform: translateX(-2px);
+  transition: transform 150ms ease, opacity 150ms ease;
+}
+.link:hover .linkArrow {
+  opacity: 0.9;
+  transform: translateX(0);
+}
+
+@media (max-width: 900px) {
+  .list {
+    gap: 8px;
+  }
+}

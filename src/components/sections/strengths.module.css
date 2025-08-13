@@ -25,6 +25,10 @@
 
 .blockHeader {
   margin-left: 0;
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  align-items: start;
+  gap: 14px;
 }
 
 .blockTitle {
@@ -32,25 +36,32 @@
   font-size: clamp(1.4rem, 3vw, 2rem);
   letter-spacing: 0.01em;
   color: var(--text);
+  margin: 0;
 }
 
 .blockSubtitle {
   color: var(--muted);
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
 .blockBody {
   color: var(--text);
-  margin-top: 14px;
+  margin-top: 12px;
   line-height: 1.7;
   max-width: 72ch;
 }
 
-.divider {
-  display: none;
+.blockIcon {
+  display: block;
+  width: 36px;
+  height: 36px;
+  color: var(--text);
+  opacity: 0.9;
+  margin-top: 10px;
 }
 
-.block:hover {
+.divider {
+  display: none;
 }
 
 .block:focus-within {

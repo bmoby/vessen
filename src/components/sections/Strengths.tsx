@@ -1,4 +1,5 @@
 import styles from "./strengths.module.css";
+import { IconLaurel, IconPlate, IconShield } from "@/components/shared/Icons";
 
 type Strength = {
   title: string;
@@ -31,11 +32,22 @@ export default function Strengths() {
   return (
     <section className={styles.section} id="services">
       <div className={styles.container}>
-        {strengths.map((item) => (
+        {strengths.map((item, idx) => (
           <article key={item.title} className={styles.block}>
             <header className={styles.blockHeader}>
-              <h2 className={styles.blockTitle}>{item.title}</h2>
-              <p className={styles.blockSubtitle}>{item.subtitle}</p>
+              {idx === 0 && (
+                <IconLaurel size={32} className={styles.blockIcon} />
+              )}
+              {idx === 1 && (
+                <IconPlate size={32} className={styles.blockIcon} />
+              )}
+              {idx === 2 && (
+                <IconShield size={32} className={styles.blockIcon} />
+              )}
+              <div>
+                <h2 className={styles.blockTitle}>{item.title}</h2>
+                <p className={styles.blockSubtitle}>{item.subtitle}</p>
+              </div>
             </header>
             <div className={styles.blockBody}>{item.description}</div>
           </article>
