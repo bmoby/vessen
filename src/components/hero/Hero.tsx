@@ -7,23 +7,31 @@ export default function Hero() {
     <section className={styles.hero}>
       <div className={styles.container}>
         <div className={styles.copy}>
-          <h1 className={styles.title}>Excellence joaillière, sur-mesure</h1>
+          <h1 className={styles.title}>Art de la table d’exception</h1>
           <p className={styles.subtitle}>
-            Des créations uniques, des gemmes d'exception, un accompagnement
-            discret et attentif pour vos projets les plus précieux.
+            Pièces artisanales, finitions précieuses et détails intemporels pour
+            sublimer vos tables.
           </p>
-          <Link href="#contact" className={styles.cta}>
-            Demander un rendez-vous
-          </Link>
+          <div className={styles.actions}>
+            <Link href="#collection" className={styles.ctaPrimary}>
+              Voir la collection
+            </Link>
+            <Link href="#conseil" className={styles.ctaGhost}>
+              Conseils sur mesure
+            </Link>
+          </div>
         </div>
         <div className={styles.media}>
-          <Image
-            src="/window.svg"
-            alt="Atelier joaillier"
-            width={560}
-            height={420}
-            priority
-          />
+          <div className={styles.photo}>
+            <Image
+              src="/window.svg"
+              alt="Service de table haut de gamme"
+              width={640}
+              height={480}
+              className={styles.img}
+              priority
+            />
+          </div>
         </div>
       </div>
     </section>
