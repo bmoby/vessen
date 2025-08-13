@@ -12,19 +12,14 @@ export default function Hero() {
             Pièces artisanales, finitions précieuses et détails intemporels pour
             sublimer vos tables.
           </p>
-          <div className={styles.actions}>
-            <Link href="#collection" className={styles.ctaPrimary}>
-              Voir la collection
-            </Link>
-            <Link href="#conseil" className={styles.ctaGhost}>
-              Conseils sur mesure
-            </Link>
-          </div>
+          <Link href="#collection" className={styles.cta}>
+            Découvrir
+          </Link>
         </div>
         <div className={styles.media}>
           <div className={styles.photo}>
             <Image
-              src="/window.svg"
+              src="/homepageimg.png"
               alt="Service de table haut de gamme"
               width={640}
               height={480}
