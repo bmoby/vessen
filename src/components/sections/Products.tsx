@@ -8,6 +8,7 @@ export type ProductRow = Record<string, unknown>;
 interface ProductsProps {
   columns: string[];
   rows: ProductRow[];
+  labels?: string[];
 }
 
 function normalize(value: unknown): string {
@@ -18,7 +19,7 @@ function normalize(value: unknown): string {
   return JSON.stringify(value);
 }
 
-export default function Products({ columns, rows }: ProductsProps) {
+export default function Products({ columns, rows, labels }: ProductsProps) {
   const [query, setQuery] = useState("");
 
   const filteredRows = useMemo(() => {
@@ -50,17 +51,36 @@ export default function Products({ columns, rows }: ProductsProps) {
           <table className={styles.table}>
             <thead>
               <tr>
-                {columns.map((col) => (
-                  <th key={col}>{col}</th>
+                {columns.map((col, i) => (
+                  <th key={col}>{labels?.[i] ?? col}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {filteredRows.map((row, idx) => (
                 <tr key={idx}>
-                  {columns.map((col) => (
-                    <td key={col}>{normalize(row[col])}</td>
-                  ))}
+                  {columns.map((col, colIdx) => {
+                    const value = normalize(row[col]);
+                    const isLast = colIdx === columns.length - 1;
+                    if (isLast) {
+                      const trimmed = value.trim();
+                      const match = trimmed.match(/^(\d{10,})\s+(\d{10,})$/);
+                      if (match) {
+                        const parts = trimmed.split(/\s+/);
+                        return (
+                          <td key={col}>
+                            {parts.map((part, i) => (
+                              <span key={i}>
+                                {part}
+                                {i < parts.length - 1 ? <br /> : null}
+                              </span>
+                            ))}
+                          </td>
+                        );
+                      }
+                    }
+                    return <td key={col}>{value}</td>;
+                  })}
                 </tr>
               ))}
             </tbody>

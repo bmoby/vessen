@@ -1,6 +1,6 @@
 import Header from "@/components/navbar/Header";
 import styles from "@/components/sections/products.module.css";
-import Products from "@/components/sections/Products";
+import Products from "../../components/sections/Products";
 import path from "node:path";
 import { promises as fs } from "node:fs";
 import * as XLSX from "xlsx";
@@ -48,19 +48,35 @@ async function readProductsFromXls() {
       }
     }
 
-    const headerRow = (aoa[headerIndex] || []).map(
-      (h, i) => String(h ?? "").trim() || `Colonne ${i + 1}`
+    const rawHeaderRow = (aoa[headerIndex] || []).map((h) =>
+      String(h ?? "").trim()
     );
-    let columns = makeUniqueHeaders(headerRow);
+    // If 5th header is empty due to merged header across cols 4-5, use col 4 title
+    if (rawHeaderRow.length > 4 && rawHeaderRow[4] === "" && rawHeaderRow[3]) {
+      rawHeaderRow[4] = rawHeaderRow[3];
+    }
+    const headerRowWithFallback = rawHeaderRow.map(
+      (h, i) => h || `Colonne ${i + 1}`
+    );
+    const initialColumns = makeUniqueHeaders(headerRowWithFallback);
+    // Ignore only first (index 0) column by position
+    const ignoreIndices = new Set([0]);
+    const selectedIndices = initialColumns
+      .map((_, i) => i)
+      .filter((i) => !ignoreIndices.has(i));
+    let columns = selectedIndices.map((i) => initialColumns[i]);
+    // Clean duplicated suffixes like " (2)" in titles for visual clarity (we keep internal map as columns)
+    const displayLabels = columns.map((name) => name.replace(/ \(\d+\)$/g, ""));
 
     // Convert following rows to objects
     const body = aoa.slice(headerIndex + 1);
     let mapped = body
       .map((row) => {
         const obj: Record<string, unknown> = {};
-        for (let i = 0; i < columns.length; i++) {
-          const value = row && row[i] != null ? row[i] : "";
-          obj[columns[i]] = typeof value === "string" ? value.trim() : value;
+        for (let k = 0; k < columns.length; k++) {
+          const colIndex = selectedIndices[k];
+          const value = row && row[colIndex] != null ? row[colIndex] : "";
+          obj[columns[k]] = typeof value === "string" ? value.trim() : value;
         }
         return obj;
       })
@@ -82,7 +98,7 @@ async function readProductsFromXls() {
       });
     }
 
-    return { columns, rows: mapped };
+    return { columns, rows: mapped, displayLabels };
   } catch (error) {
     console.error("Failed to read pricelist.xls", error);
     return { columns: [], rows: [] };
@@ -90,7 +106,7 @@ async function readProductsFromXls() {
 }
 
 export default async function ProductsPage() {
-  const { columns, rows } = await readProductsFromXls();
+  const { columns, rows, displayLabels } = await readProductsFromXls();
 
   return (
     <main>
@@ -105,7 +121,7 @@ export default async function ProductsPage() {
             </p>
           </header>
 
-          <Products columns={columns} rows={rows} />
+          <Products columns={columns} rows={rows} labels={displayLabels} />
         </div>
       </section>
     </main>
