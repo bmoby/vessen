@@ -12,9 +12,8 @@ export default function Header() {
         </Link>
         <nav className={styles.nav} aria-label="Primary">
           <Link href="/products">Produits</Link>
-          <Link href="#about">À propos</Link>
-          <Link href="#services">Services</Link>
-          <Link href="#contact">Contact</Link>
+          <Link href="/blog">Blog</Link>
+          <Link href="/contact">Contact</Link>
         </nav>
       </div>
     </header>
