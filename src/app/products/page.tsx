@@ -1,8 +1,6 @@
 import Header from "@/components/navbar/Header";
 import styles from "@/components/sections/products.module.css";
 import Products from "../../components/sections/Products";
-import path from "node:path";
-import { promises as fs } from "node:fs";
 import * as XLSX from "xlsx";
 
 export const dynamic = "force-dynamic";
@@ -17,14 +15,45 @@ function makeUniqueHeaders(headers: string[]): string[] {
   });
 }
 
+function buildGoogleSheetsExportUrl(): string {
+  const sheetId = process.env.PRICE_SHEET_ID;
+  const gid = process.env.PRICE_SHEET_GID; // optional specific tab
+  const base = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=xlsx`;
+  return gid ? `${base}&gid=${gid}` : base;
+}
+
+async function fetchWorkbookBuffer(): Promise<Buffer | null> {
+  try {
+    const url = buildGoogleSheetsExportUrl();
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) return null;
+    const arrayBuffer = await res.arrayBuffer();
+    return Buffer.from(new Uint8Array(arrayBuffer));
+  } catch {
+    return null;
+  }
+}
+
 async function readProductsFromXls() {
   try {
-    const filePath = path.join(process.cwd(), "public", "pricelist.xls");
-    const fileBuffer = await fs.readFile(filePath);
+    const fileBuffer = await fetchWorkbookBuffer();
+    if (!fileBuffer)
+      return {
+        columns: [],
+        rows: [],
+        displayLabels: [],
+        downloadUrl: buildGoogleSheetsExportUrl(),
+      };
     const workbook = XLSX.read(fileBuffer, { type: "buffer" });
     const firstSheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[firstSheetName];
-    if (!worksheet) return { columns: [], rows: [] };
+    if (!worksheet)
+      return {
+        columns: [],
+        rows: [],
+        displayLabels: [],
+        downloadUrl: buildGoogleSheetsExportUrl(),
+      };
 
     // Read as an array of arrays to better control headers/empty rows
     const aoa = XLSX.utils.sheet_to_json<(string | number)[]>(worksheet, {
@@ -33,7 +62,13 @@ async function readProductsFromXls() {
       defval: "",
       blankrows: false,
     });
-    if (!aoa || aoa.length === 0) return { columns: [], rows: [] };
+    if (!aoa || aoa.length === 0)
+      return {
+        columns: [],
+        rows: [],
+        displayLabels: [],
+        downloadUrl: buildGoogleSheetsExportUrl(),
+      };
 
     // Choose the header row as the one with the highest number of non-empty cells within the top 30 rows
     let headerIndex = 0;
@@ -121,15 +156,26 @@ async function readProductsFromXls() {
       }
     }
 
-    return { columns, rows: mapped, displayLabels };
+    return {
+      columns,
+      rows: mapped,
+      displayLabels,
+      downloadUrl: buildGoogleSheetsExportUrl(),
+    };
   } catch (error) {
     console.error("Failed to read pricelist.xls", error);
-    return { columns: [], rows: [] };
+    return {
+      columns: [],
+      rows: [],
+      displayLabels: [],
+      downloadUrl: buildGoogleSheetsExportUrl(),
+    };
   }
 }
 
 export default async function ProductsPage() {
-  const { columns, rows, displayLabels } = await readProductsFromXls();
+  const { columns, rows, displayLabels, downloadUrl } =
+    await readProductsFromXls();
 
   return (
     <main>
@@ -144,7 +190,12 @@ export default async function ProductsPage() {
             </p>
           </header>
 
-          <Products columns={columns} rows={rows} labels={displayLabels} />
+          <Products
+            columns={columns}
+            rows={rows}
+            labels={displayLabels}
+            downloadUrl={downloadUrl}
+          />
         </div>
       </section>
     </main>

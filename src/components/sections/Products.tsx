@@ -9,6 +9,7 @@ interface ProductsProps {
   columns: string[];
   rows: ProductRow[];
   labels?: string[];
+  downloadUrl?: string;
 }
 
 function normalize(value: unknown): string {
@@ -19,7 +20,12 @@ function normalize(value: unknown): string {
   return JSON.stringify(value);
 }
 
-export default function Products({ columns, rows, labels }: ProductsProps) {
+export default function Products({
+  columns,
+  rows,
+  labels,
+  downloadUrl,
+}: ProductsProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [submittedQuery, setSubmittedQuery] = useState("");
   const PAGE_SIZE = 300;
@@ -41,34 +47,53 @@ export default function Products({ columns, rows, labels }: ProductsProps) {
   const total = filteredRows.length;
   const visibleRows = filteredRows.slice(0, visibleCount);
 
+  const orderedIndices = useMemo(() => {
+    // Order based purely on current column positions: take 2nd and 3rd first, then the rest
+    const all = columns.map((_, i) => i);
+    const preferred = [2, 3].filter((i) => i >= 0 && i < columns.length);
+    const rest = all.filter((i) => !preferred.includes(i));
+    return [...preferred, ...rest];
+  }, [columns]);
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.tools}>
-        <input
-          className={styles.search}
-          type="search"
-          placeholder="Rechercher un produit…"
-          ref={inputRef}
-          onChange={(e) => {
-            if (e.currentTarget.value.trim() === "") {
-              setSubmittedQuery("");
-            }
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              setSubmittedQuery(inputRef.current?.value ?? "");
-            }
-          }}
-          aria-label="Rechercher"
-        />
-        <button
-          type="button"
-          className={styles.loadMore}
-          onClick={() => setSubmittedQuery(inputRef.current?.value ?? "")}
-        >
-          Rechercher
-        </button>
-        <div className={styles.count}>{filteredRows.length} éléments</div>
+        <div className={styles.toolsLeft}>
+          <input
+            className={styles.search}
+            type="search"
+            placeholder="Rechercher un produit…"
+            ref={inputRef}
+            onChange={(e) => {
+              if (e.currentTarget.value.trim() === "") {
+                setSubmittedQuery("");
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                setSubmittedQuery(inputRef.current?.value ?? "");
+              }
+            }}
+            aria-label="Rechercher"
+          />
+          <button
+            type="button"
+            className={styles.loadMore}
+            onClick={() => setSubmittedQuery(inputRef.current?.value ?? "")}
+          >
+            Rechercher
+          </button>
+        </div>
+        <div className={styles.toolsRight}>
+          <div className={styles.count}>{filteredRows.length} éléments</div>
+          <a
+            href={downloadUrl ?? "/pricelist.xls"}
+            className={styles.downloadTextLink}
+            download
+          >
+            Télécharger
+          </a>
+        </div>
       </div>
 
       {columns.length === 0 ? (
@@ -78,17 +103,18 @@ export default function Products({ columns, rows, labels }: ProductsProps) {
           <table className={styles.table}>
             <thead>
               <tr>
-                {columns.map((col, i) => (
-                  <th key={col}>{labels?.[i] ?? col}</th>
+                {orderedIndices.map((i) => (
+                  <th key={columns[i]}>{labels?.[i] ?? columns[i]}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {visibleRows.map((row, idx) => (
                 <tr key={idx}>
-                  {columns.map((col, colIdx) => {
+                  {orderedIndices.map((i, displayIdx) => {
+                    const col = columns[i];
                     const value = normalize(row[col]);
-                    const isLast = colIdx === columns.length - 1;
+                    const isLast = displayIdx === orderedIndices.length - 1;
                     if (isLast) {
                       const trimmed = value.trim();
                       const match = trimmed.match(/^(\d{10,})\s+(\d{10,})$/);

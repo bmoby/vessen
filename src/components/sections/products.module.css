@@ -42,6 +42,21 @@
   border-bottom: 1px solid var(--border);
 }
 
+.toolsLeft {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  flex: 1 1 auto;
+}
+
+.toolsRight {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
 .search {
   flex: 1 1 280px;
   min-width: 180px;
@@ -118,7 +133,48 @@
   border-color: var(--accent);
 }
 
+.downloadLink {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.downloadLink:hover {
+  border-color: var(--accent);
+}
+
+.downloadTextLink {
+  color: #111;
+  text-decoration: underline;
+  opacity: 0.9;
+}
+
+.downloadTextLink:hover {
+  opacity: 1;
+}
+
 @media (max-width: 640px) {
+  .header {
+    display: none;
+  }
+
+  .container {
+    padding: 8px 8px 16px;
+  }
+
+  .wrapper {
+    border-radius: 0;
+  }
+
+  .tools {
+    padding: 8px;
+    gap: 8px;
+  }
+
   .table thead th,
   .table tbody td {
     white-space: nowrap;
