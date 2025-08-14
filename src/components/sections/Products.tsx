@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./products.module.css";
 
 export type ProductRow = Record<string, unknown>;
@@ -20,15 +20,26 @@ function normalize(value: unknown): string {
 }
 
 export default function Products({ columns, rows, labels }: ProductsProps) {
-  const [query, setQuery] = useState("");
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [submittedQuery, setSubmittedQuery] = useState("");
+  const PAGE_SIZE = 300;
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+  useEffect(() => {
+    // Reset pagination when data set or query changes
+    setVisibleCount(PAGE_SIZE);
+  }, [submittedQuery, rows]);
 
   const filteredRows = useMemo(() => {
-    if (!query.trim()) return rows;
-    const q = query.toLowerCase();
+    if (!submittedQuery.trim()) return rows;
+    const q = submittedQuery.toLowerCase();
     return rows.filter((row) =>
       Object.values(row).some((v) => normalize(v).toLowerCase().includes(q))
     );
-  }, [rows, query]);
+  }, [rows, submittedQuery]);
+
+  const total = filteredRows.length;
+  const visibleRows = filteredRows.slice(0, visibleCount);
 
   return (
     <div className={styles.wrapper}>
@@ -37,10 +48,26 @@ export default function Products({ columns, rows, labels }: ProductsProps) {
           className={styles.search}
           type="search"
           placeholder="Rechercher un produit…"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          ref={inputRef}
+          onChange={(e) => {
+            if (e.currentTarget.value.trim() === "") {
+              setSubmittedQuery("");
+            }
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              setSubmittedQuery(inputRef.current?.value ?? "");
+            }
+          }}
           aria-label="Rechercher"
         />
+        <button
+          type="button"
+          className={styles.loadMore}
+          onClick={() => setSubmittedQuery(inputRef.current?.value ?? "")}
+        >
+          Rechercher
+        </button>
         <div className={styles.count}>{filteredRows.length} éléments</div>
       </div>
 
@@ -57,7 +84,7 @@ export default function Products({ columns, rows, labels }: ProductsProps) {
               </tr>
             </thead>
             <tbody>
-              {filteredRows.map((row, idx) => (
+              {visibleRows.map((row, idx) => (
                 <tr key={idx}>
                   {columns.map((col, colIdx) => {
                     const value = normalize(row[col]);
@@ -85,6 +112,22 @@ export default function Products({ columns, rows, labels }: ProductsProps) {
               ))}
             </tbody>
           </table>
+          <div className={styles.footerTools}>
+            <span className={styles.range}>
+              {Math.min(visibleCount, total)} / {total}
+            </span>
+            {visibleCount < total && (
+              <button
+                type="button"
+                className={styles.loadMore}
+                onClick={() =>
+                  setVisibleCount((c) => Math.min(total, c + PAGE_SIZE))
+                }
+              >
+                Charger plus
+              </button>
+            )}
+          </div>
         </div>
       )}
     </div>

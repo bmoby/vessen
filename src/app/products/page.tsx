@@ -65,9 +65,6 @@ async function readProductsFromXls() {
       .map((_, i) => i)
       .filter((i) => !ignoreIndices.has(i));
     let columns = selectedIndices.map((i) => initialColumns[i]);
-    // Clean duplicated suffixes like " (2)" in titles for visual clarity (we keep internal map as columns)
-    const displayLabels = columns.map((name) => name.replace(/ \(\d+\)$/g, ""));
-
     // Convert following rows to objects
     const body = aoa.slice(headerIndex + 1);
     let mapped = body
@@ -96,6 +93,32 @@ async function readProductsFromXls() {
         for (const col of columns) cleaned[col] = row[col];
         return cleaned;
       });
+    }
+
+    // Build display labels from current columns
+    const displayLabels = columns.map((name) => name.replace(/ \(\d+\)$/g, ""));
+
+    // If two adjacent labels are exactly "Номенклатура", fix semantic titles for the next columns
+    for (let i = 0; i < displayLabels.length - 1; i++) {
+      if (
+        displayLabels[i] === "Номенклатура" &&
+        displayLabels[i + 1] === "Номенклатура"
+      ) {
+        // Keep the first as "Номенклатура"
+        displayLabels[i + 1] = "Цена";
+        if (i + 2 < displayLabels.length) displayLabels[i + 2] = "Остаток";
+        if (i + 3 < displayLabels.length) {
+          // If the next column looks like a barcode, name it accordingly
+          const colKey = columns[i + 3];
+          const looksBarcode = mapped.some((r) =>
+            /^(\d{10,14})$/.test(String(r[colKey] ?? "").trim())
+          );
+          displayLabels[i + 3] = looksBarcode
+            ? "Штрихкод"
+            : displayLabels[i + 3];
+        }
+        break;
+      }
     }
 
     return { columns, rows: mapped, displayLabels };

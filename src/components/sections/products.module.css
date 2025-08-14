@@ -92,6 +92,32 @@
   color: var(--muted);
 }
 
+.footerTools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 12px 14px 16px;
+}
+
+.range {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.loadMore {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.loadMore:hover {
+  border-color: var(--accent);
+}
+
 @media (max-width: 640px) {
   .table thead th,
   .table tbody td {
