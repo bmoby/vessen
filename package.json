@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "flexsearch": "^0.8.205",
     "flubber": "^0.4.2",
     "framer-motion": "^12.23.12",
     "mammoth": "^1.10.0",
