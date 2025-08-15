@@ -2,6 +2,7 @@
 
 import styles from "./blog.module.css";
 import SmartImage from "@/components/shared/SmartImage";
+import Skeleton from "@/components/shared/Skeleton";
 
 export type BlogArticle = {
   imageUrl?: string;
@@ -36,7 +37,9 @@ export default function BlogList({ articles }: { articles: BlogArticle[] }) {
                 <h3 className={styles.cardTitle}>{a.title}</h3>
                 {a.subtitle ? (
                   <p className={styles.cardSubtitle}>{a.subtitle}</p>
-                ) : null}
+                ) : (
+                  <Skeleton className={styles.skelSubtitle} />
+                )}
                 {a.description ? (
                   <p className={styles.cardDescription}>{a.description}</p>
                 ) : null}

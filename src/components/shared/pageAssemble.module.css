@@ -1,0 +1,50 @@
+.assemble > * {
+  opacity: 0.98;
+  transition: opacity var(--assemble-duration, 220ms) ease-out,
+    transform var(--assemble-duration, 220ms) ease-out;
+  will-change: opacity, transform;
+}
+
+/* mouvements initiaux par section (sans blur) */
+.assemble > *:nth-child(1) {
+  /* Header – très léger depuis le haut */
+  transform: translateY(-6px);
+}
+.assemble > *:nth-child(2) {
+  /* Hero – très léger depuis le bas avec micro scale */
+  transform: translateY(8px) scale(0.996);
+}
+.assemble > *:nth-child(3) {
+  /* Strengths – glisse légèrement depuis la droite */
+  transform: translateX(8px);
+}
+.assemble > *:nth-child(4) {
+  /* Contact CTA – glisse légèrement depuis la gauche */
+  transform: translateX(-8px);
+}
+.assemble > *:nth-child(5) {
+  /* Footer – léger depuis le bas */
+  transform: translateY(6px);
+}
+
+.assemble.ready > * {
+  opacity: 1;
+  transform: translate(0, 0) scale(1);
+}
+
+/* Léger décalage (stagger) pour 5 premiers éléments */
+.assemble.ready > *:nth-child(1) {
+  transition-delay: 0ms;
+}
+.assemble.ready > *:nth-child(2) {
+  transition-delay: 50ms;
+}
+.assemble.ready > *:nth-child(3) {
+  transition-delay: 100ms;
+}
+.assemble.ready > *:nth-child(4) {
+  transition-delay: 150ms;
+}
+.assemble.ready > *:nth-child(5) {
+  transition-delay: 200ms;
+}

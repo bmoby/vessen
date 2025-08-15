@@ -2,6 +2,7 @@ import Header from "@/components/navbar/Header";
 import styles from "@/components/sections/blog.module.css";
 import BlogList, { type BlogArticle } from "../../components/sections/BlogList";
 import * as XLSX from "xlsx";
+import PageAssemble from "@/components/shared/PageAssemble";
 
 export const dynamic = "force-dynamic";
 
@@ -83,19 +84,21 @@ export default async function BlogPage() {
 
   return (
     <main>
-      <Header />
-      <section className={styles.section}>
-        <div className={styles.container}>
-          <header className={styles.header}>
-            <h1 className={styles.title}>Blog</h1>
-            <p className={styles.subtitle}>
-              Actualités et articles. Données chargées depuis Google Sheets.
-            </p>
-          </header>
+      <PageAssemble delayMs={0}>
+        <Header />
+        <section className={styles.section}>
+          <div className={styles.container}>
+            <header className={styles.header}>
+              <h1 className={styles.title}>Blog</h1>
+              <p className={styles.subtitle}>
+                Actualités et articles. Données chargées depuis Google Sheets.
+              </p>
+            </header>
 
-          <BlogList articles={articles} />
-        </div>
-      </section>
+            <BlogList articles={articles} />
+          </div>
+        </section>
+      </PageAssemble>
     </main>
   );
 }

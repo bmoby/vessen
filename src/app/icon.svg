@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ecce93"/>
+      <stop offset="60%" stop-color="#b8822f"/>
+      <stop offset="100%" stop-color="#8c5f1d"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="12" ry="12" fill="#fbf8f1"/>
+  <!-- contour léger intérieur -->
+  <rect x="3" y="3" width="58" height="58" rx="10" ry="10" fill="none" stroke="url(#g)" stroke-opacity="0.18"/>
+  <!-- V principal, élégamment évasé -->
+  <path d="M14 14 L32 50 L50 14" fill="none" stroke="url(#g)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- V secondaire (filet intérieur) -->
+  <path d="M18 14 L32 46 L46 14" fill="none" stroke="url(#g)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.9"/>
+  <!-- petite pierre (facette) au creux du V -->
+  <polygon points="32,42 34,44 32,47 30,44" fill="url(#g)" opacity="0.95"/>
+</svg>
+
+

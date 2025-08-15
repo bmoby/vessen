@@ -12,8 +12,8 @@ export default function Hero() {
             Pièces artisanales, finitions précieuses et détails intemporels pour
             sublimer vos tables.
           </p>
-          <Link href="#collection" className={styles.cta}>
-            Découvrir
+          <Link href="/products" className={styles.cta}>
+            Découvrir nos produits
           </Link>
         </div>
         <div className={styles.media}>
