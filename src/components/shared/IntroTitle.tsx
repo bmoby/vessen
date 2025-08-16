@@ -31,7 +31,6 @@ export default function IntroTitle({ text }: IntroTitleProps) {
         <span className={styles.gloss} aria-hidden="true" />
         {letters.map((char, index) => (
           <span
-            // eslint-disable-next-line react/no-array-index-key
             key={`${char}-${index}`}
             className={styles.letter}
             style={

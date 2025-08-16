@@ -1,0 +1,88 @@
+.section {
+  background: #fff;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 96px 24px 120px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+.block {
+  position: relative;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0 0 32px 0;
+}
+
+.accentBar {
+  display: none;
+}
+
+.blockHeader {
+  margin-left: 0;
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  align-items: start;
+  gap: 14px;
+}
+
+.blockTitle {
+  font-family: var(--font-playfair), serif;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  letter-spacing: 0.01em;
+  color: var(--text);
+  margin: 0;
+}
+
+.blockSubtitle {
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.blockBody {
+  color: var(--text);
+  margin-top: 12px;
+  line-height: 1.7;
+  max-width: 72ch;
+}
+
+.blockIcon {
+  display: block;
+  width: 36px;
+  height: 36px;
+  color: var(--text);
+  opacity: 0.9;
+  margin-top: 10px;
+}
+
+.divider {
+  display: none;
+}
+
+.block:focus-within {
+  outline: none;
+}
+
+.block + .block::before {
+  content: "";
+  display: block;
+  height: 1px;
+  margin: 40px 0 32px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--border),
+    transparent
+  );
+}
+
+@media (min-width: 900px) {
+  .block {
+    padding: 40px 36px;
+  }
+}

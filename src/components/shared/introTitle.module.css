@@ -12,7 +12,6 @@
   line-height: 1.05;
   letter-spacing: 0.12em; /* starts wider, will tighten in */
   color: transparent;
-  -webkit-text-stroke: 1px rgba(0, 0, 0, 0.65); /* Stroke → Fill */
   text-align: center;
   will-change: transform, opacity, filter, letter-spacing, background-position;
 }
@@ -58,17 +57,10 @@
   inset: 55% -6% auto -6%;
   height: 0.5em;
   border-radius: 6px;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 238, 173, 0) 0%,
-    rgba(255, 238, 173, 0.8) 25%,
-    rgba(255, 225, 130, 0.9) 50%,
-    rgba(255, 238, 173, 0.8) 75%,
-    rgba(255, 238, 173, 0) 100%
-  );
+  background: none;
   transform: translateY(6px) scaleX(0.2);
   filter: blur(2px);
-  animation: highlightSwipe 1200ms ease-out 350ms forwards;
+  animation: none;
   z-index: -1;
 }
 
@@ -140,15 +132,12 @@
 @keyframes fillIn {
   0% {
     color: transparent;
-    -webkit-text-stroke: 1px rgba(0, 0, 0, 0.65);
   }
   60% {
     color: rgba(0, 0, 0, 0.55);
-    -webkit-text-stroke: 1px rgba(0, 0, 0, 0.4);
   }
   100% {
     color: #000;
-    -webkit-text-stroke: 0 rgba(0, 0, 0, 0);
   }
 }
 
