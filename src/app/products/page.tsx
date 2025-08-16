@@ -2,7 +2,6 @@ import Header from "@/components/navbar/Header";
 import styles from "@/components/sections/products.module.css";
 import Products from "../../components/sections/Products";
 import * as XLSX from "xlsx";
-import PageAssemble from "@/components/shared/PageAssemble";
 
 export const dynamic = "force-dynamic";
 
@@ -180,27 +179,21 @@ export default async function ProductsPage() {
 
   return (
     <main>
-      <PageAssemble delayMs={0}>
-        <Header />
-        <section className={styles.section}>
-          <div className={styles.container}>
-            <header className={styles.header}>
-              <h1 className={styles.title}>Каталог продукции</h1>
-              <p className={styles.subtitle}>
-                Данные загружаются из Google Sheets. Найдите нужные позиции и
-                скачайте прайс при необходимости.
-              </p>
-            </header>
+      <Header />
+      <section className={styles.section}>
+        <div className={styles.container}>
+          <header className={styles.header}>
+            <h1 className={styles.title}>Каталог продукции</h1>
+          </header>
 
-            <Products
-              columns={columns}
-              rows={rows}
-              labels={displayLabels}
-              downloadUrl={downloadUrl}
-            />
-          </div>
-        </section>
-      </PageAssemble>
+          <Products
+            columns={columns}
+            rows={rows}
+            labels={displayLabels}
+            downloadUrl={downloadUrl}
+          />
+        </div>
+      </section>
     </main>
   );
 }

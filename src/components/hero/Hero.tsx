@@ -19,7 +19,7 @@ export default function Hero() {
         <div className={styles.media}>
           <div className={styles.photo}>
             <Image
-              src="/homepageimg2.png"
+              src="/homepageimg3.png"
               alt="Service de table haut de gamme"
               width={640}
               height={480}

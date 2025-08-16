@@ -58,6 +58,7 @@ export default function PathShineOverlay() {
     // Nettoyer toute animation existante
     pathEl.style.animation = "none";
     let currentAnim: Animation | null = null;
+    let timeoutId: NodeJS.Timeout;
 
     try {
       const length = pathEl.getTotalLength();
@@ -157,64 +158,21 @@ export default function PathShineOverlay() {
         }
       };
 
-      // Observer pour détecter quand PageAssemble est prêt
-      const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          if (
-            mutation.type === "attributes" &&
-            mutation.attributeName === "data-assemble-ready"
-          ) {
-            const target = mutation.target as Element;
-            if (target.getAttribute("data-assemble-ready") === "true") {
-              console.log(
-                "PageAssemble terminé, démarrage animation brillance"
-              );
-              startAnimation();
-              observer.disconnect();
-            }
-          }
-        });
-      });
+      // Démarrer l'animation après un délai fixe (remplace la dépendance à PageAssemble)
+      const animationDelay = 1500; // délai en ms pour laisser le temps à la page de se charger
+      console.log(`⏱️ Démarrage de l'animation dans ${animationDelay}ms`);
 
-      // Debug: Chercher l'élément PageAssemble
-      const pageAssembleEl = document.querySelector("[data-assemble-ready]");
-      console.log("🔍 PageAssemble trouvé:", pageAssembleEl ? "OUI" : "NON");
-
-      if (pageAssembleEl) {
-        const currentState = pageAssembleEl.getAttribute("data-assemble-ready");
-        console.log("🔍 État actuel data-assemble-ready:", currentState);
-
-        if (currentState === "true") {
-          // Déjà prêt - mais on ne relance PAS l'animation en navigation
-          console.log(
-            "✅ PageAssemble déjà prêt, mais pas de relance d'animation en navigation"
-          );
-          // Garder le stroke masqué si on arrive sur une page déjà assemblée
-          pathEl.style.strokeOpacity = "0";
-          pathEl.style.stroke = "transparent";
-          pathEl.style.filter = "";
-        } else {
-          // Observer les changements
-          console.log("👀 Observer en place, attente du changement...");
-          observer.observe(pageAssembleEl, {
-            attributes: true,
-            attributeFilter: ["data-assemble-ready"],
-          });
-        }
-      } else {
-        // Fallback si pas de PageAssemble trouvé
-        console.log("⚠️ Pas de PageAssemble trouvé, fallback dans 2s");
-        setTimeout(() => {
-          console.log("🔄 Fallback: démarrage animation");
-          startAnimation();
-        }, 2000);
-      }
+      timeoutId = setTimeout(() => {
+        console.log("🚀 Démarrage de l'animation de brillance");
+        startAnimation();
+      }, animationDelay);
     } catch (e) {
       console.warn("Failed to setup path animation:", e);
     }
 
     // Nettoyage à la destruction du composant
     return () => {
+      clearTimeout(timeoutId);
       if (pathEl) {
         pathEl.style.animation = "none";
         if (currentAnim) {
