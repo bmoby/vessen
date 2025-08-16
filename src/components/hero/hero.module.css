@@ -77,29 +77,69 @@
 
 .photo {
   position: relative;
-  width: min(560px, 88%);
+  width: min(560px, 65%);
   border-radius: 20px;
   overflow: hidden;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 .photo::before {
-  content: "";
+  content: none;
+}
+
+/* Path animation overlay - propre et élégant */
+.pathOverlay {
   position: absolute;
-  inset: -2px -2px auto -2px;
-  height: 42%;
-  background: var(--grad-gold);
-  opacity: 0.14;
-  filter: blur(14px);
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.svgContainer {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.svgContainer svg {
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+}
+
+/* Animation qui révèle le path comme SVGATOR */
+.pathReveal {
+  animation-name: pathReveal;
+}
+
+@keyframes pathReveal {
+  0% {
+    stroke-dashoffset: var(--path-length, 15000);
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Animation de debug avec valeurs fixes */
+@keyframes pathRevealDebug {
+  0% {
+    stroke-dashoffset: 15000;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
 }
 
 .img {
   display: block;
   width: 100%;
   height: auto;
+  background-color: transparent;
+  mix-blend-mode: multiply;
 }
 
 @media (max-width: 900px) {

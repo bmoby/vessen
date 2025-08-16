@@ -9,22 +9,22 @@ type Strength = {
 
 const strengths: Strength[] = [
   {
-    title: "Sélection d'exception",
-    subtitle: "Gemmes certifiées et traçables",
+    title: "Надёжный ассортимент",
+    subtitle: "Сертифицированная продукция и проверенные поставки",
     description:
-      "Des gemmes sélectionnées avec exigence auprès de partenaires de confiance. Certification, traçabilité et contrôle qualité rigoureux pour des pièces irréprochables.",
+      "Тщательно отобранные позиции у надёжных партнёров. Сертификация, прослеживаемость и строгий контроль качества для стабильного результата.",
   },
   {
-    title: "Savoir‑faire sur‑mesure",
-    subtitle: "Exigence artisanale et finitions précieuses",
+    title: "Гибкие решения",
+    subtitle: "Под задачи вашего бизнеса",
     description:
-      "Chaque création est pensée dans le détail. Conception personnalisée, matériaux nobles et finitions durables pour sublimer vos projets d'exception.",
+      "Подбираем позиции под ваши требования: материалы, объёмы, сроки. Оптимальные условия и долгосрочный подход к сотрудничеству.",
   },
   {
-    title: "Accompagnement discret",
-    subtitle: "Un service attentif et durable",
+    title: "Поддержка и сервис",
+    subtitle: "Прозрачно и своевременно",
     description:
-      "Conseil dédié, suivi transparent et confidentialité. Nous vous accompagnons de la sélection à la livraison pour une expérience sereine et haut de gamme.",
+      "Личный менеджер, оперативная коммуникация и аккуратная логистика. От запроса до отгрузки — всё предсказуемо и без лишних хлопот.",
   },
 ];
 

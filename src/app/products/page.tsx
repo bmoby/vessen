@@ -185,10 +185,10 @@ export default async function ProductsPage() {
         <section className={styles.section}>
           <div className={styles.container}>
             <header className={styles.header}>
-              <h1 className={styles.title}>Liste des produits</h1>
+              <h1 className={styles.title}>Каталог продукции</h1>
               <p className={styles.subtitle}>
-                Découvrez notre sélection. Données chargées depuis le fichier
-                prix.
+                Данные загружаются из Google Sheets. Найдите нужные позиции и
+                скачайте прайс при необходимости.
               </p>
             </header>
 

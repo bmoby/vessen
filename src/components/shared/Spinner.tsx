@@ -9,7 +9,7 @@ export default function Spinner() {
       aria-busy="true"
     >
       <div className={styles.spinner} />
-      <span className={styles.label}>Chargement…</span>
+      <span className={styles.label}>Загрузка…</span>
     </div>
   );
 }

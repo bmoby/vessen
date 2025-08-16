@@ -11,9 +11,9 @@ export default function Header() {
           VESSEN
         </Link>
         <nav className={styles.nav} aria-label="Primary">
-          <Link href="/products">Produits</Link>
-          <Link href="/blog">Blog</Link>
-          <Link href="/contact">Contact</Link>
+          <Link href="/products">Продукт</Link>
+          <Link href="/blog">Блог</Link>
+          <Link href="/contact">Контакт</Link>
         </nav>
       </div>
     </header>

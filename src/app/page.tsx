@@ -10,13 +10,12 @@ export default function HomePage() {
   return (
     <main>
       <IntroOverlay text="VESSEN" />
-      <PageAssemble>
-        <Header />
-        <Hero />
-        <Strengths />
-        <ContactCta />
-        <Footer />
-      </PageAssemble>
+
+      <Header />
+      <Hero />
+      <Strengths />
+      <ContactCta />
+      <Footer />
     </main>
   );
 }

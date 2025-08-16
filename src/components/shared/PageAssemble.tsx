@@ -23,6 +23,7 @@ export default function PageAssemble({
   return (
     <div
       className={`${styles.assemble} ${ready ? styles.ready : ""}`}
+      data-assemble-ready={ready ? "true" : "false"}
       style={{
         // allow customizing duration per instance if needed
         ["--assemble-duration" as unknown as string]: `${durationMs}ms`,

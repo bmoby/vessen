@@ -16,7 +16,7 @@ function normalize(value: unknown): string {
   if (value == null) return "";
   if (typeof value === "string") return value;
   if (typeof value === "number") return String(value);
-  if (typeof value === "boolean") return value ? "Oui" : "Non";
+  if (typeof value === "boolean") return value ? "Да" : "Нет";
   return JSON.stringify(value);
 }
 
@@ -62,7 +62,7 @@ export default function Products({
           <input
             className={styles.search}
             type="search"
-            placeholder="Rechercher un produit…"
+            placeholder="Поиск по каталогу…"
             ref={inputRef}
             onChange={(e) => {
               if (e.currentTarget.value.trim() === "") {
@@ -74,30 +74,30 @@ export default function Products({
                 setSubmittedQuery(inputRef.current?.value ?? "");
               }
             }}
-            aria-label="Rechercher"
+            aria-label="Поиск"
           />
           <button
             type="button"
             className={styles.loadMore}
             onClick={() => setSubmittedQuery(inputRef.current?.value ?? "")}
           >
-            Rechercher
+            Искать
           </button>
         </div>
         <div className={styles.toolsRight}>
-          <div className={styles.count}>{filteredRows.length} éléments</div>
+          <div className={styles.count}>{filteredRows.length} позиций</div>
           <a
             href={downloadUrl ?? "/pricelist.xls"}
             className={styles.downloadTextLink}
             download
           >
-            Télécharger
+            Скачать
           </a>
         </div>
       </div>
 
       {columns.length === 0 ? (
-        <div className={styles.empty}>Aucune donnée trouvée.</div>
+        <div className={styles.empty}>Данные не найдены.</div>
       ) : (
         <div className={styles.tableContainer}>
           <table className={styles.table}>
@@ -150,7 +150,7 @@ export default function Products({
                   setVisibleCount((c) => Math.min(total, c + PAGE_SIZE))
                 }
               >
-                Charger plus
+                Показать ещё
               </button>
             )}
           </div>

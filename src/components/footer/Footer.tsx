@@ -6,7 +6,7 @@ export default function Footer() {
       <div className={styles.container}>
         <div className={styles.brand}>VESSEN</div>
         <div className={styles.meta}>
-          © {new Date().getFullYear()} VESSEN. Tous droits réservés.
+          © {new Date().getFullYear()} VESSEN. Все права защищены.
         </div>
       </div>
     </footer>

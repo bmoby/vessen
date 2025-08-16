@@ -89,9 +89,9 @@ export default async function BlogPage() {
         <section className={styles.section}>
           <div className={styles.container}>
             <header className={styles.header}>
-              <h1 className={styles.title}>Blog</h1>
+              <h1 className={styles.title}>Блог</h1>
               <p className={styles.subtitle}>
-                Actualités et articles. Données chargées depuis Google Sheets.
+                Обновления и статьи. Данные загружаются из Google Sheets.
               </p>
             </header>
 

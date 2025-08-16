@@ -9,11 +9,11 @@ export default function ContactCta() {
       <div className={styles.container}>
         <div className={styles.copy}>
           <h2 id="contact-cta-title" className={styles.title}>
-            Parlons de votre projet
+            Свяжитесь с нами
           </h2>
           <p className={styles.subtitle}>
-            Un accompagnement discret et attentif. Choisissez le canal qui vous
-            convient.
+            Мы оперативно ответим и поможем подобрать нужное. Выберите удобный
+            канал связи.
           </p>
         </div>
         <ul className={styles.list}>
@@ -24,7 +24,7 @@ export default function ContactCta() {
                   src="/vectors/phone.png"
                   width={20}
                   height={20}
-                  alt="Téléphone"
+                  alt="Телефон"
                   className={styles.linkIcon}
                 />
                 <span className={styles.linkText}>+33 6 00 00 00 00</span>

@@ -6,15 +6,15 @@ import MapWithLoader from "@/components/shared/MapWithLoader";
 import PageAssemble from "@/components/shared/PageAssemble";
 
 export const metadata: Metadata = {
-  title: "Contact | VESSEN",
+  title: "Контакты | VESSEN",
   description:
-    "Contactez VESSEN par téléphone, WhatsApp, Telegram ou Instagram.",
+    "Свяжитесь с нами по телефону, в WhatsApp, Telegram или Instagram.",
 };
 
 export default function ContactPage() {
   const ADDRESS =
     process.env.NEXT_PUBLIC_COMPANY_ADDRESS ||
-    "Renseignez votre adresse dans NEXT_PUBLIC_COMPANY_ADDRESS";
+    "Укажите адрес в переменной NEXT_PUBLIC_COMPANY_ADDRESS";
   const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     ADDRESS
   )}`;
@@ -28,7 +28,7 @@ export default function ContactPage() {
               iframeSrc="https://yandex.com/map-widget/v1/?um=constructor%3A29953f022e91445bc095df8eff48e9a22d47652fd6b5a9fc29cf61a48c53275c&source=constructor"
               height={500}
               mapSearchUrl={mapSearchUrl}
-              title="Localisation VESSEN"
+              title="Расположение VESSEN"
             />
           </div>
         </section>
@@ -48,7 +48,7 @@ export default function ContactPage() {
                 href={mapSearchUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Ouvrir l'adresse dans le navigateur"
+                aria-label="Открыть адрес в браузере"
                 style={{ textDecoration: "underline", color: "inherit" }}
               >
                 {ADDRESS}
