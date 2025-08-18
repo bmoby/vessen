@@ -53,17 +53,130 @@ export default function PathShineOverlay() {
     };
   }, []);
 
-  // Simple visibility check - start animation when component mounts and page is ready
+  // Wait for page to be fully loaded and visible before starting animation
   useEffect(() => {
     if (!wrapperRef.current) return;
 
-    // Simple delay to ensure page is loaded and visible
-    const timer = setTimeout(() => {
-      setHasStarted(true);
-    }, 1000);
+    let isCancelled = false;
 
-    return () => clearTimeout(timer);
-  }, []);
+    // Function to check if page is ready
+    const checkPageReady = () => {
+      if (isCancelled) return;
+
+      // Check if page is fully loaded
+      if (document.readyState === "complete") {
+        // Additional check: wait for images to be loaded
+        const images = document.querySelectorAll("img[data-critical]");
+        if (images.length === 0) {
+          // No critical images, wait only for IntroOverlay
+          waitForIntroOverlay();
+          return;
+        }
+
+        // Wait for all critical images to load
+        const imagePromises = Array.from(images).map((img) => {
+          const imgElement = img as HTMLImageElement;
+          if (imgElement.complete && imgElement.naturalWidth > 0) {
+            return Promise.resolve();
+          }
+          return new Promise<void>((resolve) => {
+            imgElement.addEventListener("load", () => resolve(), {
+              once: true,
+            });
+            imgElement.addEventListener("error", () => resolve(), {
+              once: true,
+            });
+          });
+        });
+
+        Promise.all(imagePromises).then(() => {
+          if (!isCancelled) {
+            console.log("🎯 Page fully loaded, waiting for IntroOverlay...");
+            waitForIntroOverlay();
+          }
+        });
+      } else {
+        // Page not ready yet, check again in 100ms
+        setTimeout(checkPageReady, 100);
+      }
+    };
+
+    // Function to wait for IntroOverlay animation to finish
+    const waitForIntroOverlay = () => {
+      console.log("🔍 Looking for IntroOverlay element...");
+
+      // Find the IntroOverlay element
+      const findIntroOverlay = () => {
+        const introOverlay = document.querySelector("[data-intro-overlay]");
+        if (introOverlay) {
+          console.log("✅ IntroOverlay found, waiting for it to disappear...");
+
+          // Create a MutationObserver to watch for IntroOverlay class changes
+          const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+              if (
+                mutation.type === "attributes" &&
+                mutation.attributeName === "class"
+              ) {
+                const target = mutation.target as Element;
+                if (
+                  target === introOverlay &&
+                  target.classList.contains("fadeOut")
+                ) {
+                  console.log(
+                    "🎬 IntroOverlay started fading, starting Hero animation!"
+                  );
+                  observer.disconnect();
+                  if (!isCancelled) {
+                    setHasStarted(true);
+                  }
+                }
+              }
+            });
+          });
+
+          observer.observe(introOverlay, {
+            attributes: true,
+            attributeFilter: ["class"],
+          });
+
+          // Fallback: if IntroOverlay is still there after 5s, start anyway
+          setTimeout(() => {
+            if (introOverlay.isConnected) {
+              console.log(
+                "⏰ Fallback: IntroOverlay still visible after 5s, starting anyway"
+              );
+              observer.disconnect();
+              if (!isCancelled) {
+                setHasStarted(true);
+              }
+            }
+          }, 5000);
+        } else {
+          // IntroOverlay not found, check again in 100ms
+          setTimeout(findIntroOverlay, 100);
+        }
+      };
+
+      findIntroOverlay();
+    };
+
+    // Start checking
+    checkPageReady();
+
+    // Fallback: if something goes wrong, start after 8 seconds max
+    const fallbackTimer = setTimeout(() => {
+      if (!isCancelled && !hasStarted) {
+        console.log("⏰ Fallback: starting animation after 8s timeout");
+        setHasStarted(true);
+      }
+    }, 1200);
+
+    return () => {
+      isCancelled = true;
+      clearTimeout(fallbackTimer);
+    };
+  }, [hasStarted]);
 
   // Setup path animation when path data is available and component is ready
   useEffect(() => {

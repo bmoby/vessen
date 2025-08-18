@@ -17,14 +17,18 @@ export default function PageGate({
   maxWaitMs = 4000,
 }: PageGateProps) {
   const [ready, setReady] = useState(false);
+  const [showIntro, setShowIntro] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     const start = performance.now();
 
     const waitFonts =
-      typeof (document as any).fonts?.ready === "object"
-        ? (document as any).fonts.ready.catch(() => {})
+      typeof (document as Document & { fonts?: { ready: Promise<void> } }).fonts
+        ?.ready === "object"
+        ? (
+            document as Document & { fonts?: { ready: Promise<void> } }
+          ).fonts.ready.catch(() => {})
         : Promise.resolve();
 
     const waitImages = Promise.all(
@@ -44,7 +48,14 @@ export default function PageGate({
     );
 
     const waitIdle = new Promise<void>((resolve) => {
-      const ric: any = (window as any).requestIdleCallback;
+      const ric = (
+        window as Window & {
+          requestIdleCallback?: (
+            callback: () => void,
+            options?: { timeout: number }
+          ) => number;
+        }
+      ).requestIdleCallback;
       if (typeof ric === "function") {
         try {
           ric(() => resolve(), { timeout: 300 });
@@ -74,7 +85,11 @@ export default function PageGate({
       // Small grace to avoid flash
       const remaining = Math.max(0, 160 - elapsed);
       setTimeout(() => {
-        if (!cancelled) setReady(true);
+        if (!cancelled) {
+          setReady(true);
+          // Show IntroOverlay after PageGate is done
+          setTimeout(() => setShowIntro(true), 100);
+        }
       }, remaining);
     });
 
@@ -105,7 +120,7 @@ export default function PageGate({
   return (
     <>
       {!ready && overlay}
-      {children}
+      {ready && showIntro && children}
     </>
   );
 }
