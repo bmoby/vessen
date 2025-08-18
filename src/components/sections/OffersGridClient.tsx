@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./offersPreview.module.css";
 import modal from "./offersModal.module.css";
 import SmartImage from "../shared/SmartImage";
-import { fetchBlobWithCache } from "@/helpers/blobCache";
 
 export type Product = {
   imageUrl?: string;

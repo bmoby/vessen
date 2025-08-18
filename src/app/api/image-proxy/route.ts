@@ -65,7 +65,7 @@ export async function GET(req: Request) {
       },
     });
     return res;
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "Proxy error" }, { status: 500 });
   }
 }

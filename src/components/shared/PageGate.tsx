@@ -23,8 +23,11 @@ export default function PageGate({
     const start = performance.now();
 
     const waitFonts =
-      typeof (document as any).fonts?.ready === "object"
-        ? (document as any).fonts.ready.catch(() => {})
+      typeof (document as Document & { fonts?: { ready: Promise<void> } }).fonts
+        ?.ready === "object"
+        ? (
+            document as Document & { fonts?: { ready: Promise<void> } }
+          ).fonts.ready.catch(() => {})
         : Promise.resolve();
 
     const waitImages = Promise.all(
@@ -44,7 +47,14 @@ export default function PageGate({
     );
 
     const waitIdle = new Promise<void>((resolve) => {
-      const ric: any = (window as any).requestIdleCallback;
+      const ric = (
+        window as Window & {
+          requestIdleCallback?: (
+            callback: () => void,
+            options?: { timeout: number }
+          ) => number;
+        }
+      ).requestIdleCallback;
       if (typeof ric === "function") {
         try {
           ric(() => resolve(), { timeout: 300 });

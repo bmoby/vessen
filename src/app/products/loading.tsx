@@ -1,4 +1,3 @@
-import Header from "@/components/navbar/Header";
 import Spinner from "@/components/shared/Spinner";
 import styles from "@/components/sections/products.module.css";
 

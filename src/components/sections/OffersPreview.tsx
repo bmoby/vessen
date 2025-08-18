@@ -1,6 +1,5 @@
 import Link from "next/link";
 import styles from "./offersPreview.module.css";
-import SmartImage from "../shared/SmartImage";
 import OffersGridClient from "./OffersGridClient";
 
 export type Product = {
