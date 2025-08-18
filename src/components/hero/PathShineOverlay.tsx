@@ -6,14 +6,20 @@ import styles from "./hero.module.css";
 export default function PathShineOverlay() {
   const [pathData, setPathData] = useState<string | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const [hasStarted, setHasStarted] = useState(false);
 
   // Extract path data from SVGATOR animation.svg
   useEffect(() => {
     let isCancelled = false;
+    console.log("🔄 Loading SVG animation data...");
+
     fetch("/vectors/animation.svg")
-      .then((r) =>
-        r.ok ? r.text() : Promise.reject(new Error("Failed to load SVG"))
-      )
+      .then((r) => {
+        console.log("📡 SVG fetch response:", r.status, r.ok);
+        return r.ok
+          ? r.text()
+          : Promise.reject(new Error(`Failed to load SVG: ${r.status}`));
+      })
       .then((text) => {
         if (!isCancelled) {
           console.log("SVG loaded successfully:", text.length, "characters");
@@ -29,6 +35,13 @@ export default function PathShineOverlay() {
             setPathData(pathD);
           } else {
             console.error("Main path not found in SVG");
+            // Fallback: try to find any path
+            const anyPath = svgDoc.querySelector("path");
+            if (anyPath) {
+              const pathD = anyPath.getAttribute("d");
+              console.log("Using fallback path:", pathD ? "✓" : "✗");
+              setPathData(pathD);
+            }
           }
         }
       })
@@ -40,27 +53,60 @@ export default function PathShineOverlay() {
     };
   }, []);
 
-  // Setup path animation when path data is available
+  // Simple visibility check - start animation when component mounts and page is ready
   useEffect(() => {
-    if (!pathData || !wrapperRef.current) return;
+    if (!wrapperRef.current) return;
+
+    // Simple delay to ensure page is loaded and visible
+    const timer = setTimeout(() => {
+      setHasStarted(true);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Setup path animation when path data is available and component is ready
+  useEffect(() => {
+    console.log("🎬 Animation effect triggered:", {
+      pathData: !!pathData,
+      wrapperRef: !!wrapperRef.current,
+      hasStarted,
+    });
+
+    if (!pathData || !wrapperRef.current || !hasStarted) {
+      console.log("❌ Animation blocked:", {
+        pathData: !!pathData,
+        wrapperRef: !!wrapperRef.current,
+        hasStarted,
+      });
+      return;
+    }
 
     const container = wrapperRef.current;
     const svgEl = container.querySelector("svg");
     const strokeEl = svgEl?.querySelector(
       'path[data-stroke="1"]'
     ) as SVGPathElement | null;
+
+    console.log("🔍 Elements found:", { svgEl: !!svgEl, strokeEl: !!strokeEl });
+
     // Cibler l'image pour le léger warm-up
     const photoEl = container.parentElement;
     const imgEl = photoEl?.querySelector(
       `.${styles.img}`
     ) as HTMLElement | null;
 
-    if (!strokeEl) return;
+    if (!strokeEl) {
+      console.error("❌ Stroke element not found");
+      return;
+    }
+
+    // Animation started
+    console.log("🚀 Animation started");
 
     // Nettoyer toute animation existante
     strokeEl.style.animation = "none";
     let currentAnim: Animation | null = null;
-    let timeoutId: NodeJS.Timeout;
 
     try {
       const length = strokeEl.getTotalLength();
@@ -161,21 +207,15 @@ export default function PathShineOverlay() {
         }
       };
 
-      // Démarrer l'animation après un délai fixe (remplace la dépendance à PageAssemble)
-      const animationDelay = 1500; // délai en ms pour laisser le temps à la page de se charger
-      console.log(`⏱️ Démarrage de l'animation dans ${animationDelay}ms`);
-
-      timeoutId = setTimeout(() => {
-        console.log("🚀 Démarrage de l'animation de brillance");
-        startAnimation();
-      }, animationDelay);
+      // Démarrer l'animation immédiatement quand la section est visible
+      console.log("🚀 Démarrage de l'animation de brillance - section visible");
+      startAnimation();
     } catch (e) {
       console.warn("Failed to setup path animation:", e);
     }
 
     // Nettoyage à la destruction du composant
     return () => {
-      clearTimeout(timeoutId);
       if (strokeEl) {
         strokeEl.style.animation = "none";
         if (currentAnim) {
@@ -184,7 +224,7 @@ export default function PathShineOverlay() {
         }
       }
     };
-  }, [pathData]);
+  }, [pathData, hasStarted]);
 
   // Create SVG overlay: only the golden stroke, no background cover
   const svgMarkup = pathData

@@ -6,19 +6,22 @@ import BrandStory from "@/components/sections/BrandStory";
 import OffersPreview from "@/components/sections/OffersPreview";
 import ContactCta from "@/components/sections/ContactCta";
 import Footer from "@/components/footer/Footer";
+import PageGate from "@/components/shared/PageGate";
 
 export default function HomePage() {
   return (
     <main>
-      <IntroOverlay text="VESSEN" />
+      <PageGate criticalSelectors={["img[data-critical]"]}>
+        <IntroOverlay text="VESSEN" />
 
-      <Header variant="over-hero" />
-      <Hero />
-      <OffersPreview />
-      <Strengths />
-      <BrandStory />
-      <ContactCta />
-      <Footer />
+        <Header variant="over-hero" />
+        <Hero />
+        <OffersPreview />
+        <Strengths />
+        <BrandStory />
+        <ContactCta />
+        <Footer />
+      </PageGate>
     </main>
   );
 }

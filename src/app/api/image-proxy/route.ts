@@ -61,7 +61,7 @@ export async function GET(req: Request) {
         "Content-Type": contentType,
         // Cache at the edge for a short time to reduce repeated fetches
         "Cache-Control":
-          "public, max-age=60, s-maxage=300, stale-while-revalidate=600",
+          "public, max-age=3600, s-maxage=86400, stale-while-revalidate=7200",
       },
     });
     return res;

@@ -30,6 +30,7 @@ export default function Hero() {
               width={640}
               height={480}
               className={styles.img}
+              data-critical
               priority
             />
             <PathShineOverlay />

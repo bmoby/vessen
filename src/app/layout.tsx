@@ -7,6 +7,7 @@ import {
 } from "next/font/google";
 import "./globals.css";
 import ScrollProgress from "@/components/shared/ScrollProgress";
+import PageGate from "@/components/shared/PageGate";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -81,7 +82,13 @@ export default function RootLayout({
         suppressHydrationWarning={true}
       >
         <ScrollProgress />
-        {children}
+        <PageGate
+          criticalSelectors={["img[data-critical]"]}
+          minWaitMs={300}
+          maxWaitMs={6000}
+        >
+          {children}
+        </PageGate>
       </body>
     </html>
   );

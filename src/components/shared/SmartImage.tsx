@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { driveDirectUrl, extractDriveFileId } from "@/helpers/drive";
+import { fetchBlobWithCache, getCachedBlobOnly } from "@/helpers/blobCache";
 
 type SmartImageProps = {
   src?: string;
@@ -9,6 +10,8 @@ type SmartImageProps = {
   className?: string;
   loading?: "eager" | "lazy";
   referrerPolicy?: React.ImgHTMLAttributes<HTMLImageElement>["referrerPolicy"];
+  critical?: boolean;
+  onLoad?: React.ReactEventHandler<HTMLImageElement>;
 };
 
 export default function SmartImage({
@@ -17,6 +20,8 @@ export default function SmartImage({
   className,
   loading = "lazy",
   referrerPolicy = "no-referrer",
+  critical = false,
+  onLoad,
 }: SmartImageProps) {
   const candidates = useMemo(() => {
     const list: string[] = [];
@@ -61,6 +66,41 @@ export default function SmartImage({
   const [index, setIndex] = useState(0);
   const hasCandidates = candidates.length > 0;
   const [exhausted, setExhausted] = useState(false);
+  const [objectUrl, setObjectUrl] = useState<string | null>(null);
+  const objectUrlRef = useRef<string | null>(null);
+
+  // Attempt to serve from IndexedDB blob cache with 24h TTL
+  useEffect(() => {
+    let isCancelled = false;
+    const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+    async function run() {
+      if (!candidates.length) return;
+      // Strategy: Try cache first, then proxy, then direct URLs
+      const proxy = candidates.find((c) => c.startsWith("/api/image-proxy"));
+      const key = proxy || candidates[0];
+      
+      // First try to get from cache only (no network request)
+      let blob = await getCachedBlobOnly(key, TWENTY_FOUR_HOURS);
+      
+      // If not in cache, fetch with cache
+      if (!blob) {
+        blob = await fetchBlobWithCache(key, TWENTY_FOUR_HOURS);
+      }
+      
+      if (!blob || isCancelled) return;
+      const url = URL.createObjectURL(blob);
+      objectUrlRef.current = url;
+      setObjectUrl(url);
+    }
+    run();
+    return () => {
+      isCancelled = true;
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
+        objectUrlRef.current = null;
+      }
+    };
+  }, [candidates]);
   if (!hasCandidates && !exhausted) return null;
 
   return (
@@ -79,18 +119,20 @@ export default function SmartImage({
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          key={candidates[index]}
-          src={candidates[index]}
+          key={objectUrl || candidates[index]}
+          src={objectUrl || candidates[index]}
           alt={alt}
           className={className}
           loading={loading}
           decoding="async"
           crossOrigin="anonymous"
           referrerPolicy={referrerPolicy}
+          data-critical={critical ? true : undefined}
           onError={() => {
             if (index < candidates.length - 1) setIndex((i) => i + 1);
             else setExhausted(true);
           }}
+          onLoad={onLoad}
         />
       )}
     </>
