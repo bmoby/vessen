@@ -17,6 +17,7 @@ export default function PageGate({
   maxWaitMs = 4000,
 }: PageGateProps) {
   const [ready, setReady] = useState(false);
+  const [showIntro, setShowIntro] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -84,7 +85,11 @@ export default function PageGate({
       // Small grace to avoid flash
       const remaining = Math.max(0, 160 - elapsed);
       setTimeout(() => {
-        if (!cancelled) setReady(true);
+        if (!cancelled) {
+          setReady(true);
+          // Show IntroOverlay after PageGate is done
+          setTimeout(() => setShowIntro(true), 100);
+        }
       }, remaining);
     });
 
@@ -115,7 +120,7 @@ export default function PageGate({
   return (
     <>
       {!ready && overlay}
-      {children}
+      {ready && showIntro && children}
     </>
   );
 }

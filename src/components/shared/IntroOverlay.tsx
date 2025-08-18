@@ -28,7 +28,10 @@ export default function IntroOverlay({
   if (!isVisible) return null;
 
   return (
-    <div className={`${styles.overlay} ${isFading ? styles.fadeOut : ""}`}>
+    <div
+      className={`${styles.overlay} ${isFading ? styles.fadeOut : ""}`}
+      data-intro-overlay
+    >
       <IntroTitle text={text} />
     </div>
   );

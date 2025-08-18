@@ -12,6 +12,7 @@ export default function HomePage() {
   return (
     <main>
       <PageGate criticalSelectors={["img[data-critical]"]}>
+        {/* IntroOverlay se déclenche APRÈS que le PageGate soit terminé */}
         <IntroOverlay text="VESSEN" />
 
         <Header variant="over-hero" />
