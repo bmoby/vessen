@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Playfair_Display,
+  Marck_Script,
+} from "next/font/google";
 import "./globals.css";
 import ScrollProgress from "@/components/shared/ScrollProgress";
 const geistSans = Geist({
@@ -16,6 +21,12 @@ const playfair = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
   weight: ["400", "600", "700"],
+});
+
+const marck = Marck_Script({
+  variable: "--font-script",
+  subsets: ["latin", "cyrillic"],
+  weight: "400",
 });
 
 export const metadata: Metadata = {
@@ -39,7 +50,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${marck.variable} antialiased`}
         suppressHydrationWarning={true}
       >
         <ScrollProgress />

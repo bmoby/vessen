@@ -46,47 +46,50 @@ export default function PathShineOverlay() {
 
     const container = wrapperRef.current;
     const svgEl = container.querySelector("svg");
-    const pathEl = svgEl?.querySelector("path");
-    // Cibler l'image pour le fade-in
+    const strokeEl = svgEl?.querySelector(
+      'path[data-stroke="1"]'
+    ) as SVGPathElement | null;
+    // Cibler l'image pour le léger warm-up
     const photoEl = container.parentElement;
     const imgEl = photoEl?.querySelector(
       `.${styles.img}`
     ) as HTMLElement | null;
 
-    if (!pathEl) return;
+    if (!strokeEl) return;
 
     // Nettoyer toute animation existante
-    pathEl.style.animation = "none";
+    strokeEl.style.animation = "none";
     let currentAnim: Animation | null = null;
     let timeoutId: NodeJS.Timeout;
 
     try {
-      const length = pathEl.getTotalLength();
+      const length = strokeEl.getTotalLength();
       console.log("Path length:", length);
 
       // Style initial - TOUJOURS commencer masqué
-      const baseWidth = 7;
-      pathEl.style.fill = "none";
-      pathEl.style.stroke = "transparent"; // transparent par défaut
-      pathEl.style.strokeWidth = String(baseWidth);
-      pathEl.style.strokeLinecap = "round";
-      pathEl.style.strokeLinejoin = "round";
-      pathEl.style.mixBlendMode = "screen"; // effet lumineux
-      pathEl.style.filter = ""; // pas de filtre par défaut
-      pathEl.style.strokeOpacity = "0"; // forcer invisible
+      const baseWidth = 6;
+      strokeEl.style.fill = "none";
+      strokeEl.style.strokeWidth = String(baseWidth);
+      strokeEl.style.strokeLinecap = "round";
+      strokeEl.style.strokeLinejoin = "round";
+      // Trait lumineux doré plus doux
+      strokeEl.style.stroke = "#f0d99a";
+      strokeEl.style.mixBlendMode = "screen";
+      strokeEl.style.filter =
+        "blur(0.8px) drop-shadow(0 0 12px rgba(240,217,154,0.65)) drop-shadow(0 0 24px rgba(240,217,154,0.45))";
+      strokeEl.style.opacity = "0.75";
 
-      // Préparer l'image pour le fade-in rapide
+      // Préparer l'image pour un fondu progressif global (opacité)
       if (imgEl) {
         imgEl.style.opacity = "0";
-        imgEl.style.transition = "opacity 400ms ease";
+        imgEl.style.transition = "opacity 400ms ease, filter 400ms ease";
       }
 
-      // Préparer l'animation: n'afficher qu'un petit segment qui se déplace
-      const segment = Math.max(100, Math.min(360, length * 0.015));
+      // Préparer l'animation: segment lumineux
+      const segment = Math.max(160, Math.min(520, length * 0.02));
       const travelInit = length + segment;
-      pathEl.style.strokeDasharray = `${segment} ${length}`;
-      pathEl.style.strokeDashoffset = String(travelInit);
-      pathEl.style.setProperty("--path-length", String(length));
+      strokeEl.style.strokeDasharray = `${segment} ${length}`;
+      strokeEl.style.strokeDashoffset = String(travelInit);
 
       // Fonction pour démarrer l'animation
       const startAnimation = () => {
@@ -98,60 +101,60 @@ export default function PathShineOverlay() {
         // Rendre le container visible pour l'animation
         container.style.display = "block";
 
-        // Déclencher le fade-in de l'image EN MÊME TEMPS
-        if (imgEl) {
-          imgEl.style.opacity = "1";
-        }
-
-        // Activer le stroke SEULEMENT pour l'animation
-        pathEl.style.stroke = "#ffffff";
-        pathEl.style.filter =
-          "blur(1.5px) drop-shadow(0 0 24px rgba(255,255,255,0.98)) drop-shadow(0 0 48px rgba(255,255,255,0.9))";
-
         const travel = length + segment; // parcourir tout le path
-        pathEl.style.strokeDashoffset = String(travel);
-        currentAnim = pathEl.animate(
+
+        strokeEl.style.strokeDashoffset = String(travel);
+
+        currentAnim = strokeEl.animate(
           [
             {
               strokeDashoffset: travel,
-              strokeOpacity: 0.08,
-              strokeWidth: baseWidth - 3,
+              strokeOpacity: 0.25,
+              strokeWidth: baseWidth - 2,
             },
             {
               strokeDashoffset: travel * 0.75,
               strokeOpacity: 1,
-              strokeWidth: baseWidth + 4,
+              strokeWidth: baseWidth + 6,
             },
             {
               strokeDashoffset: travel * 0.5,
-              strokeOpacity: 0.6,
-              strokeWidth: baseWidth + 1,
+              strokeOpacity: 0.7,
+              strokeWidth: baseWidth + 2,
             },
             {
               strokeDashoffset: travel * 0.25,
               strokeOpacity: 0.2,
-              strokeWidth: baseWidth - 1,
+              strokeWidth: baseWidth,
             },
             {
               strokeDashoffset: 0,
               strokeOpacity: 0,
-              strokeWidth: baseWidth - 3,
+              strokeWidth: baseWidth - 2,
             },
           ],
           {
-            duration: 2800,
-            easing: "ease-out",
+            duration: 3200,
+            easing: "ease-in-out",
             iterations: 1,
             fill: "forwards",
           }
         );
+        // Fondu global de l'image via opacité (pas d'effet vertical)
+        if (imgEl) {
+          imgEl.animate([{ opacity: 0 }, { opacity: 1 }], {
+            duration: 3200,
+            easing: "ease-in-out",
+            fill: "forwards",
+          });
+        }
         if (currentAnim) {
           currentAnim.onfinish = () => {
             // masquer totalement après l'animation
             container.style.display = "none";
-            pathEl.style.strokeOpacity = "0";
-            pathEl.style.stroke = "transparent";
-            pathEl.style.filter = "";
+            strokeEl.style.strokeOpacity = "0";
+            strokeEl.style.stroke = "transparent";
+            strokeEl.style.filter = "";
 
             console.log("🔒 Animation terminée, container masqué");
           };
@@ -173,8 +176,8 @@ export default function PathShineOverlay() {
     // Nettoyage à la destruction du composant
     return () => {
       clearTimeout(timeoutId);
-      if (pathEl) {
-        pathEl.style.animation = "none";
+      if (strokeEl) {
+        strokeEl.style.animation = "none";
         if (currentAnim) {
           currentAnim.cancel();
           currentAnim = null;
@@ -183,11 +186,11 @@ export default function PathShineOverlay() {
     };
   }, [pathData]);
 
-  // Create clean SVG with extracted path - animation élégante
+  // Create SVG overlay: only the golden stroke, no background cover
   const svgMarkup = pathData
     ? `
-    <svg viewBox="0 0 805 962" xmlns="http://www.w3.org/2000/svg">
-      <path d="${pathData}" fill="none" stroke="white" stroke-width="2" opacity="0.8" />
+    <svg viewBox="0 0 805 962" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+      <path data-stroke="1" d="${pathData}" fill="none" stroke="#f0d99a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="0.75" />
     </svg>
   `
     : null;
