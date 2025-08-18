@@ -6,9 +6,6 @@ const ALLOWED_HOSTS = new Set([
   "lh3.googleusercontent.com",
   "usercontent.google.com",
   "googleusercontent.com",
-  "www.dropbox.com",
-  "dropbox.com",
-  "dl.dropboxusercontent.com",
 ]);
 
 export async function GET(req: Request) {

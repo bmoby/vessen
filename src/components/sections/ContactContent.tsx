@@ -35,27 +35,30 @@ function buildFallbackMapUrl(address: string): string {
   return `https://yandex.com/maps/?text=${encodeURIComponent(address)}`;
 }
 
-const CONSTRUCTOR_LINK =
-  "https://yandex.com/maps/?um=constructor%3A7001a600c6ec98a57f7d8ebaddd6383efbb92e127c81289f03c1d3d7008a1669&source=constructorLink";
-
 const DEFAULT_LOCATIONS: Location[] = [
   {
     city: "Грозный",
     address: "Город Грозный, Петропавловское шоссе 2а",
     phone: "89380203131",
-    mapUrl: CONSTRUCTOR_LINK,
+    mapUrl:
+      "https://yandex.com/maps/?text=" +
+      encodeURIComponent("Город Грозный, Петропавловское шоссе 2а"),
   },
   {
     city: "Хасавюрт",
     address: "Город Хасавюрт, улица Батырмурзаева 3",
     phone: "89380203030",
-    mapUrl: CONSTRUCTOR_LINK,
+    mapUrl:
+      "https://yandex.com/maps/?text=" +
+      encodeURIComponent("Город Хасавюрт, улица Батырмурзаева 3"),
   },
   {
     city: "Махачкала",
     address: "Город Махачкала, проспект Имама Шамиля 13в",
     phone: "+7 928 529-31-31",
-    mapUrl: CONSTRUCTOR_LINK,
+    mapUrl:
+      "https://yandex.com/maps/?text=" +
+      encodeURIComponent("Город Махачкала, проспект Имама Шамиля 13в"),
   },
 ];
 
@@ -76,7 +79,7 @@ export default function ContactContent({
         </header>
 
         <ul className={styles.list}>
-          {locations.map((loc, idx) => (
+          {locations.map((loc) => (
             <li key={loc.address} className={styles.row}>
               <div className={styles.rowPrimary}>
                 <h3 className={styles.city}>{loc.city}</h3>

@@ -45,17 +45,7 @@ export default function SmartImage({
     url = url.replace(/^http:\/\//i, "https://");
     try {
       const u = new URL(url);
-      if (u.hostname.includes("dropbox.com")) {
-        if (u.searchParams.has("dl")) {
-          u.searchParams.set("raw", "1");
-          u.searchParams.delete("dl");
-        } else {
-          u.searchParams.set("raw", "1");
-        }
-        list.push(u.toString());
-      } else {
-        list.push(encodeURI(u.toString()));
-      }
+      list.push(encodeURI(u.toString()));
     } catch {
       list.push(url);
     }
