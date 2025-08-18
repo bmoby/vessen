@@ -1,7 +1,7 @@
 import Link from "next/link";
 import styles from "./offersPreview.module.css";
 import SmartImage from "../shared/SmartImage";
-import * as XLSX from "xlsx";
+import OffersGridClient from "./OffersGridClient";
 
 export type Product = {
   imageUrl?: string;
@@ -11,25 +11,70 @@ export type Product = {
   discountPercent?: number;
 };
 
+// Client grid is imported directly; this file is a Server Component passing serializable props
+
 function buildProductsSheetExportUrl(): string {
   const sheetId = process.env.PRODUCTS_SHEET_ID || process.env.BLOG_SHEET_ID;
   const gid = process.env.PRODUCTS_SHEET_GID || process.env.BLOG_SHEET_GID;
   if (!sheetId) return "";
-  const base = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=xlsx`;
+  const base = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
   return gid ? `${base}&gid=${gid}` : base;
 }
 
-async function fetchWorkbookBuffer(): Promise<Buffer | null> {
+async function fetchCsvText(): Promise<string | null> {
   try {
     const url = buildProductsSheetExportUrl();
     if (!url) return null;
-    const res = await fetch(url, { cache: "no-store" });
+    const res = await fetch(url, { next: { revalidate: 600 } });
     if (!res.ok) return null;
-    const arrayBuffer = await res.arrayBuffer();
-    return Buffer.from(new Uint8Array(arrayBuffer));
+    return await res.text();
   } catch {
     return null;
   }
+}
+
+function parseCsv(csv: string): string[][] {
+  const rows: string[][] = [];
+  let current: string[] = [];
+  let field = "";
+  let inQuotes = false;
+  for (let i = 0; i < csv.length; i++) {
+    const char = csv[i];
+    if (inQuotes) {
+      if (char === '"') {
+        const next = csv[i + 1];
+        if (next === '"') {
+          field += '"';
+          i++;
+        } else {
+          inQuotes = false;
+        }
+      } else {
+        field += char;
+      }
+    } else {
+      if (char === '"') {
+        inQuotes = true;
+      } else if (char === ",") {
+        current.push(field);
+        field = "";
+      } else if (char === "\n") {
+        current.push(field);
+        rows.push(current);
+        current = [];
+        field = "";
+      } else if (char === "\r") {
+        // ignore
+      } else {
+        field += char;
+      }
+    }
+  }
+  if (field.length > 0 || current.length > 0) {
+    current.push(field);
+    rows.push(current);
+  }
+  return rows;
 }
 
 function parseDiscount(value: unknown): number | undefined {
@@ -45,26 +90,12 @@ function parseDiscount(value: unknown): number | undefined {
 
 async function readLatestOffers(): Promise<Product[]> {
   try {
-    const fileBuffer = await fetchWorkbookBuffer();
-    if (!fileBuffer) return [];
-
-    const workbook = XLSX.read(fileBuffer, { type: "buffer" });
-    const firstSheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[firstSheetName];
-    if (!worksheet) return [];
-
-    const aoa = XLSX.utils.sheet_to_json<(string | number)[]>(worksheet, {
-      header: 1,
-      raw: false,
-      defval: "",
-      blankrows: false,
-    });
-
-    if (!aoa || aoa.length < 2) return [];
-
-    const rows = aoa.slice(1);
-
-    const products: Product[] = rows
+    const csv = await fetchCsvText();
+    if (!csv) return [];
+    const rows = parseCsv(csv);
+    if (!rows || rows.length < 2) return [];
+    const dataRows = rows.slice(1);
+    const products: Product[] = dataRows
       .map((row) => {
         const imageUrl = String(row[0] ?? "").trim();
         const title = String(row[1] ?? "").trim();
@@ -84,8 +115,6 @@ async function readLatestOffers(): Promise<Product[]> {
         } as Product;
       })
       .filter(Boolean) as Product[];
-
-    // Return only the first 3 products
     return products.slice(0, 3);
   } catch {
     return [];
@@ -109,38 +138,7 @@ export default async function OffersPreview() {
           </p>
         </header>
 
-        <div className={styles.grid}>
-          {products.map((product, idx) => (
-            <article key={`${product.title}-${idx}`} className={styles.card}>
-              {product.imageUrl && (
-                <div className={styles.media}>
-                  <SmartImage
-                    src={product.imageUrl}
-                    alt={product.title}
-                    className={styles.cover}
-                  />
-                  <span className={styles.mediaGlow} />
-                  {product.discountPercent && product.discountPercent > 0 && (
-                    <div className={styles.badge}>
-                      −{product.discountPercent}%
-                    </div>
-                  )}
-                </div>
-              )}
-              <div className={styles.body}>
-                <h3 className={styles.cardTitle}>{product.title}</h3>
-                {product.subtitle && (
-                  <p className={styles.cardSubtitle}>{product.subtitle}</p>
-                )}
-                {product.description && (
-                  <p className={styles.cardDescription}>
-                    {product.description}
-                  </p>
-                )}
-              </div>
-            </article>
-          ))}
-        </div>
+        <OffersGridClient products={products} />
 
         <div className={styles.cta}>
           <Link href="/blog" className={styles.ctaButton}>

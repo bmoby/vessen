@@ -1,0 +1,182 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 12, 9, 0.5);
+  backdrop-filter: blur(6px) saturate(1.1);
+  display: grid;
+  place-items: center;
+  /* Safe margins to never touch the header/menu */
+  padding: calc(72px + env(safe-area-inset-top)) 24px
+    calc(48px + env(safe-area-inset-bottom));
+  z-index: 1000;
+  animation: overlayIn 260ms ease forwards;
+}
+
+@keyframes overlayIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.dialog {
+  /* width is set inline based on image natural size; keep a safe cap */
+  max-width: min(980px, 96vw);
+  /* keep a safe max-height so it never collides with header/footer zones */
+  max-height: calc(
+    100vh - (72px + env(safe-area-inset-top)) -
+      (48px + env(safe-area-inset-bottom))
+  );
+  border-radius: 16px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.85),
+    rgba(255, 255, 255, 0.95)
+  );
+  border: 1px solid rgba(240, 217, 154, 0.6);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25),
+    0 8px 30px rgba(122, 78, 57, 0.18);
+  overflow: hidden;
+  transform-origin: center;
+  animation: dialogIn 320ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+
+@keyframes dialogIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid rgba(240, 217, 154, 0.7);
+  background: rgba(255, 255, 255, 0.7);
+  color: #7a4e39;
+  cursor: pointer;
+  font-size: 22px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 16px rgba(122, 78, 57, 0.25);
+  transition: background 160ms ease, transform 120ms ease;
+}
+
+.close:hover {
+  background: rgba(255, 255, 255, 0.95);
+}
+.close:active {
+  transform: translateY(1px);
+}
+
+.content {
+  display: block;
+  max-height: inherit;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.mediaWrap {
+  position: relative;
+  background: #111;
+}
+
+.media {
+  width: 100%;
+  height: auto;
+  max-height: 70vh;
+  object-fit: contain;
+  display: block;
+  background: #111;
+}
+
+.details {
+  padding: 20px 20px 24px 20px;
+  /* If description is long, allow scrolling within details area */
+  max-height: clamp(160px, 28vh, 360px);
+  overflow: auto;
+}
+
+.title {
+  margin: 6px 0 8px;
+  font-size: 1.25rem;
+  color: #7a4e39;
+}
+
+.subtitle {
+  margin: 0 0 10px;
+  color: rgba(122, 78, 57, 0.85);
+}
+
+.description {
+  margin: 0;
+  color: rgba(34, 28, 24, 0.78);
+  line-height: 1.6;
+}
+
+.navBtn {
+  appearance: none;
+  border: 1px solid rgba(240, 217, 154, 0.7);
+  background: rgba(255, 255, 255, 0.8);
+  color: #7a4e39;
+  width: 44px;
+  height: 36px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 20px;
+  box-shadow: 0 4px 16px rgba(122, 78, 57, 0.2);
+}
+
+/* Side navigation overlayed on the image */
+.sideNav {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.sideBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+}
+
+.sideBtnLeft {
+  left: 8px;
+}
+.sideBtnRight {
+  right: 8px;
+}
+
+@media (max-width: 900px) {
+  .dialog {
+    max-width: min(720px, 96vw);
+  }
+  .sideBtn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+  }
+}
+
+@media (max-width: 600px) {
+  .dialog {
+    border-radius: 12px;
+  }
+}

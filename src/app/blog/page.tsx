@@ -1,28 +1,32 @@
 import Header from "@/components/navbar/Header";
 import styles from "@/components/sections/image.module.css";
-import ProductList, {
-  type Product,
-} from "../../components/sections/ProductList";
-import * as XLSX from "xlsx";
+import OffersGridClient from "../../components/sections/OffersGridClient";
+import PageGate from "@/components/shared/PageGate";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 600;
+type Product = {
+  imageUrl?: string;
+  title: string;
+  subtitle?: string;
+  description?: string;
+  discountPercent?: number;
+};
 
 function buildProductsSheetExportUrl(): string {
   const sheetId = process.env.PRODUCTS_SHEET_ID || process.env.BLOG_SHEET_ID; // Fallback to blog sheet for now
   const gid = process.env.PRODUCTS_SHEET_GID || process.env.BLOG_SHEET_GID; // optional
   if (!sheetId) return "";
-  const base = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=xlsx`;
+  const base = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
   return gid ? `${base}&gid=${gid}` : base;
 }
 
-async function fetchWorkbookBuffer(): Promise<Buffer | null> {
+async function fetchCsvText(): Promise<string | null> {
   try {
     const url = buildProductsSheetExportUrl();
     if (!url) return null;
-    const res = await fetch(url, { cache: "no-store" });
+    const res = await fetch(url, { next: { revalidate: 600 } });
     if (!res.ok) return null;
-    const arrayBuffer = await res.arrayBuffer();
-    return Buffer.from(new Uint8Array(arrayBuffer));
+    return await res.text();
   } catch {
     return null;
   }
@@ -40,6 +44,50 @@ function parseDiscount(value: unknown): number | undefined {
   return Math.max(0, Math.min(90, Math.abs(n)));
 }
 
+function parseCsv(csv: string): string[][] {
+  const rows: string[][] = [];
+  let current: string[] = [];
+  let field = "";
+  let inQuotes = false;
+  for (let i = 0; i < csv.length; i++) {
+    const char = csv[i];
+    if (inQuotes) {
+      if (char === '"') {
+        const next = csv[i + 1];
+        if (next === '"') {
+          field += '"';
+          i++;
+        } else {
+          inQuotes = false;
+        }
+      } else {
+        field += char;
+      }
+    } else {
+      if (char === '"') {
+        inQuotes = true;
+      } else if (char === ",") {
+        current.push(field);
+        field = "";
+      } else if (char === "\n") {
+        current.push(field);
+        rows.push(current);
+        current = [];
+        field = "";
+      } else if (char === "\r") {
+        // ignore
+      } else {
+        field += char;
+      }
+    }
+  }
+  if (field.length > 0 || current.length > 0) {
+    current.push(field);
+    rows.push(current);
+  }
+  return rows;
+}
+
 async function readFeaturedProducts(): Promise<{
   products: Product[];
   downloadUrl: string;
@@ -47,27 +95,13 @@ async function readFeaturedProducts(): Promise<{
   const url = buildProductsSheetExportUrl();
   const downloadUrl = url || "#";
   try {
-    const fileBuffer = await fetchWorkbookBuffer();
-    if (!fileBuffer) return { products: [], downloadUrl };
+    const csv = await fetchCsvText();
+    if (!csv) return { products: [], downloadUrl };
+    const rows = parseCsv(csv);
+    if (!rows || rows.length < 2) return { products: [], downloadUrl };
+    const dataRows = rows.slice(1);
 
-    const workbook = XLSX.read(fileBuffer, { type: "buffer" });
-    const firstSheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[firstSheetName];
-    if (!worksheet) return { products: [], downloadUrl };
-
-    const aoa = XLSX.utils.sheet_to_json<(string | number)[]>(worksheet, {
-      header: 1,
-      raw: false,
-      defval: "",
-      blankrows: false,
-    });
-
-    if (!aoa || aoa.length < 2) return { products: [], downloadUrl };
-
-    // First row is header per spec
-    const rows = aoa.slice(1);
-
-    const products: Product[] = rows
+    const products: Product[] = dataRows
       .map((row) => {
         const imageUrl = String(row[0] ?? "").trim();
         const title = String(row[1] ?? "").trim();
@@ -99,17 +133,18 @@ export default async function FeaturedProductsPage() {
 
   return (
     <main>
-      <Header />
-      <section className={styles.section}>
-        <div className={styles.container}>
-          <header className={styles.header}>
-            <h1 className={styles.title}>Акции</h1>
-            <p className={styles.subtitle}>Лучшие предложения сегодня.</p>
-          </header>
-
-          <ProductList products={products} />
-        </div>
-      </section>
+      <PageGate>
+        <Header />
+        <section className={styles.section}>
+          <div className={styles.container}>
+            <header className={styles.header}>
+              <h1 className={styles.title}>Акции</h1>
+              <p className={styles.subtitle}>Лучшие предложения сегодня.</p>
+            </header>
+            <OffersGridClient products={products} />
+          </div>
+        </section>
+      </PageGate>
     </main>
   );
 }
