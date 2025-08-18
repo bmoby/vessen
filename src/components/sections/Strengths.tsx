@@ -1,5 +1,4 @@
 import styles from "./strengths.module.css";
-import { IconLaurel, IconPlate, IconShield } from "@/components/shared/Icons";
 
 type Strength = {
   title: string;
@@ -8,6 +7,12 @@ type Strength = {
 };
 
 const strengths: Strength[] = [
+  {
+    title: "Ваш бренд — наши ресурсы",
+    subtitle: "От выпуска под брендом до поштучной замены элементов коллекций",
+    description:
+      "Производим под вашим брендом, кастомизируем серии и при необходимости поставляем точную замену поштучно, чтобы сохранить ваш имидж и укреплять лояльность клиентов.",
+  },
   {
     title: "Доверие 500+ партнёров",
     subtitle: "B2B-сеть, которая растёт каждый месяц",
@@ -19,12 +24,6 @@ const strengths: Strength[] = [
     subtitle: "Личный менеджер, от подбора до первого заказа",
     description:
       "Встречаемся у вас или у нас, показываем образцы, фиксируем спецификации. Пока идёт проверка, готовим договор, визуалы и логистику, вы движетесь по понятному плану.",
-  },
-  {
-    title: "Ваш бренд — наши ресурсы",
-    subtitle: "От выпуска под брендом до поштучной замены элементов коллекций",
-    description:
-      "Производим под вашим брендом, кастомизируем серии и при необходимости поставляем точную замену поштучно, чтобы сохранить ваш имидж и укреплять лояльность клиентов.",
   },
 ];
 
@@ -40,13 +39,8 @@ export default function Strengths() {
         </header>
 
         <div className={styles.grid}>
-          {strengths.map((item, idx) => (
+          {strengths.map((item) => (
             <article key={item.title} className={styles.card}>
-              <div className={styles.cardIcon}>
-                {idx === 0 && <IconLaurel size={40} />}
-                {idx === 1 && <IconPlate size={40} />}
-                {idx === 2 && <IconShield size={40} />}
-              </div>
               <div className={styles.cardContent}>
                 <h3 className={styles.cardTitle}>{item.title}</h3>
                 <p className={styles.cardSubtitle}>{item.subtitle}</p>

@@ -1,6 +1,6 @@
 "use client";
 
-import styles from "./blog.module.css";
+import styles from "./image.module.css";
 import SmartImage from "@/components/shared/SmartImage";
 import Skeleton from "@/components/shared/Skeleton";
 

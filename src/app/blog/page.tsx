@@ -1,5 +1,5 @@
 import Header from "@/components/navbar/Header";
-import styles from "@/components/sections/blog.module.css";
+import styles from "@/components/sections/image.module.css";
 import ProductList, {
   type Product,
 } from "../../components/sections/ProductList";
