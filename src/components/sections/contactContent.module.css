@@ -1,0 +1,101 @@
+.section {
+  background: white;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 24px 64px;
+}
+
+.header {
+  margin-bottom: 32px;
+}
+
+.title {
+  font-family: var(--font-playfair), serif;
+  font-size: clamp(1.8rem, 3.2vw, 2.4rem);
+  margin: 0 0 8px 0;
+}
+
+.subtitle {
+  color: var(--muted);
+  margin: 0;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 24px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border);
+}
+.row:last-child {
+  border-bottom: none;
+}
+
+.rowPrimary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.separator {
+  opacity: 0.6;
+}
+
+.city {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text);
+}
+.address {
+  margin: 0;
+  color: var(--text);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.phone {
+  color: var(--primary);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.phone:hover {
+  text-decoration: underline;
+}
+.phoneIcon {
+  font-size: 1.1em;
+}
+
+.mapLink {
+  color: var(--primary);
+  text-decoration: underline;
+}
+.mapLink:hover {
+  opacity: 0.9;
+}
+
+@media (max-width: 900px) {
+  .container {
+    padding: 20px 20px 48px;
+  }
+
+  .actions {
+    gap: 6px;
+  }
+}

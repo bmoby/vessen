@@ -103,8 +103,10 @@ export function IconWhatsApp({ size = 24, className }: IconProps) {
       className={className}
       aria-hidden
     >
-      <path d="M20.5 12a8.5 8.5 0 1 1-15.54 4.52L3 21l4.64-1.93A8.5 8.5 0 1 1 20.5 12z" />
-      <path d="M8.5 9.5c.4 1.8 2.1 3.5 3.9 3.9M9.5 8.5c.7-.7 1.4-.7 2.1 0M12.4 13.4c.7.7 1.4.7 2.1 0" />
+      <circle cx="12" cy="12" r="9" />
+      <path d="M8.5 14.5L7 16l-1 3 3-1 1.5-1.5" />
+      <path d="M15 9c-1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2z" />
+      <path d="M9 15c0-1.5 1-3 3-3s3 1.5 3 3" />
     </svg>
   );
 }
@@ -124,8 +126,9 @@ export function IconTelegram({ size = 24, className }: IconProps) {
       className={className}
       aria-hidden
     >
-      <path d="M22 3L3 11l6 2 2 6 11-16z" />
-      <path d="M9 12l4 4" />
+      <circle cx="12" cy="12" r="9" />
+      <path d="M16 8l-6 6" />
+      <path d="M16 8l-4 12-2-6-6-2 12-4z" />
     </svg>
   );
 }
@@ -148,6 +151,27 @@ export function IconInstagram({ size = 24, className }: IconProps) {
       <rect x="3" y="3" width="18" height="18" rx="5" />
       <circle cx="12" cy="12" r="3.6" />
       <circle cx="17.2" cy="6.8" r=".8" />
+    </svg>
+  );
+}
+
+export function IconEmail({ size = 24, className }: IconProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.25"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <path d="M22 6l-10 7L2 6" />
     </svg>
   );
 }

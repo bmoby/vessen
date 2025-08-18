@@ -16,7 +16,7 @@ export default function BlogList({ articles }: { articles: BlogArticle[] }) {
     <div className={styles.wrapperGallery}>
       {!articles || articles.length === 0 ? (
         <div className={styles.empty}>
-          Aucun article disponible pour le moment.
+          Aucun élément disponible pour le moment.
         </div>
       ) : (
         <ul className={styles.grid}>

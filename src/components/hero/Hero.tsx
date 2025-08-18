@@ -8,18 +8,24 @@ export default function Hero() {
     <section className={styles.hero}>
       <div className={styles.container}>
         <div className={styles.copy}>
-          <h1 className={styles.title}>Посуда и всё необходимое оптом</h1>
+          <h1 className={styles.title}>Больше, чем посуда</h1>
           <p className={styles.subtitle}>
-            Качество, на которое можно положиться, цены, которые приятно удивят
+            Мы делаем так, чтобы ваш бренд звучал в каждом изделии, а наша
+            главная ценность, доверие между вами и вашими клиентами.
           </p>
-          <Link href="/products" className={styles.cta}>
-            Перейти к продукции
-          </Link>
+          <div className={styles.ctaRow}>
+            <Link href="/products" className={styles.cta}>
+              Прайслист
+            </Link>
+            <Link href="/blog" className={styles.cta}>
+              Акции
+            </Link>
+          </div>
         </div>
         <div className={styles.media}>
           <div className={styles.photo}>
             <Image
-              src="/homepageimg3.png"
+              src="/homepageimg6.png"
               alt="Service de table haut de gamme"
               width={640}
               height={480}

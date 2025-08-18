@@ -14,7 +14,7 @@ export default function MapWithLoader({
   iframeSrc,
   height = 500,
   mapSearchUrl,
-  title = "Carte",
+  title = "Карта",
 }: MapWithLoaderProps) {
   const [mapLoaded, setMapLoaded] = useState(false);
 
@@ -56,7 +56,7 @@ export default function MapWithLoader({
         href={mapSearchUrl}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Ouvrir la carte dans le navigateur"
+        aria-label="Открыть карту в Яндекс.Картах"
         style={{
           position: "absolute",
           inset: 0,

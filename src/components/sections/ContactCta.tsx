@@ -1,7 +1,6 @@
 import Link from "next/link";
-import Image from "next/image";
 import styles from "./contactCta.module.css";
-import { IconArrowRight } from "@/components/shared/Icons";
+import { ArrowRight, Mail, MessageCircle, Send, Instagram } from "lucide-react";
 
 export default function ContactCta() {
   return (
@@ -18,78 +17,54 @@ export default function ContactCta() {
         </div>
         <ul className={styles.list}>
           <li className={styles.item}>
-            <Link href="tel:+33600000000" className={styles.link}>
+            <Link href="mailto:vessenware@gmail.com" className={styles.link}>
               <span className={styles.linkLeft}>
-                <Image
-                  src="/vectors/phone.png"
-                  width={20}
-                  height={20}
-                  alt="Телефон"
-                  className={styles.linkIcon}
-                />
-                <span className={styles.linkText}>+33 6 00 00 00 00</span>
+                <Mail size={22} className={styles.linkIcon} />
+                <span className={styles.linkText}>vessenware@gmail.com</span>
               </span>
-              <IconArrowRight className={styles.linkArrow} />
+              <ArrowRight size={18} className={styles.linkArrow} />
             </Link>
           </li>
           <li className={styles.item}>
             <Link
-              href="https://wa.me/33600000000"
+              href="https://wa.me/79380203131"
               target="_blank"
               rel="noopener noreferrer"
               className={styles.link}
             >
               <span className={styles.linkLeft}>
-                <Image
-                  src="/vectors/whatsapp.png"
-                  width={20}
-                  height={20}
-                  alt="WhatsApp"
-                  className={styles.linkIcon}
-                />
+                <MessageCircle size={22} className={styles.linkIcon} />
                 <span className={styles.linkText}>WhatsApp</span>
               </span>
-              <IconArrowRight className={styles.linkArrow} />
+              <ArrowRight size={18} className={styles.linkArrow} />
             </Link>
           </li>
           <li className={styles.item}>
             <Link
-              href="https://t.me/username"
+              href="https://t.me/+79380203131"
               target="_blank"
               rel="noopener noreferrer"
               className={styles.link}
             >
               <span className={styles.linkLeft}>
-                <Image
-                  src="/vectors/telegram.png"
-                  width={20}
-                  height={20}
-                  alt="Telegram"
-                  className={styles.linkIcon}
-                />
+                <Send size={22} className={styles.linkIcon} />
                 <span className={styles.linkText}>Telegram</span>
               </span>
-              <IconArrowRight className={styles.linkArrow} />
+              <ArrowRight size={18} className={styles.linkArrow} />
             </Link>
           </li>
           <li className={styles.item}>
             <Link
-              href="https://instagram.com/yourbrand"
+              href="https://www.instagram.com/vessen__official"
               target="_blank"
               rel="noopener noreferrer"
               className={styles.link}
             >
               <span className={styles.linkLeft}>
-                <Image
-                  src="/vectors/instagram.png"
-                  width={20}
-                  height={20}
-                  alt="Instagram"
-                  className={styles.linkIcon}
-                />
+                <Instagram size={22} className={styles.linkIcon} />
                 <span className={styles.linkText}>Instagram</span>
               </span>
-              <IconArrowRight className={styles.linkArrow} />
+              <ArrowRight size={18} className={styles.linkArrow} />
             </Link>
           </li>
         </ul>
