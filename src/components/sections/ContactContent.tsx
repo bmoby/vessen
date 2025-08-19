@@ -41,24 +41,21 @@ const DEFAULT_LOCATIONS: Location[] = [
     address: "Город Грозный, Петропавловское шоссе 2а",
     phone: "89380203131",
     mapUrl:
-      "https://yandex.com/maps/?text=" +
-      encodeURIComponent("Город Грозный, Петропавловское шоссе 2а"),
+      "https://yandex.com/maps/1106/grozniy/house/petropavlovskoye_shosse_2a/YEwYcQdgT0YGQFppfX91cH1lYw==/?ll=45.700632%2C43.341168&z=17",
   },
   {
     city: "Хасавюрт",
     address: "Город Хасавюрт, улица Батырмурзаева 3",
     phone: "89380203030",
     mapUrl:
-      "https://yandex.com/maps/?text=" +
-      encodeURIComponent("Город Хасавюрт, улица Батырмурзаева 3"),
+      "https://yandex.com/maps/11011/khasavurt/?ll=46.579634%2C43.256535&mode=whatshere&si=zxwuexnk251ccrf07h0k200mur&utm_source=share&whatshere%5Bpoint%5D=46.579372%2C43.256590&whatshere%5Bzoom%5D=17&z=19.2",
   },
   {
     city: "Махачкала",
     address: "Город Махачкала, проспект Имама Шамиля 13в",
     phone: "+7 928 529-31-31",
     mapUrl:
-      "https://yandex.com/maps/?text=" +
-      encodeURIComponent("Город Махачкала, проспект Имама Шамиля 13в"),
+      "https://yandex.com/maps/28/makhachkala/house/prospekt_imama_shamilya_13v/YE4Ycg9gQUUCQFpofXV2dnljYg==/?ll=47.480805%2C42.977507&z=17",
   },
 ];
 

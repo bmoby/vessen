@@ -12,10 +12,8 @@ export type Product = {
   discountPercent?: number;
 };
 
-// Client grid is imported directly; this file is a Server Component passing serializable props
-
-function buildPromotionsXlsxUrl(): string {
-  const url = process.env.PROMOTION_SHEET_URL?.trim();
+function buildTrendsXlsxUrl(): string {
+  const url = process.env.TREND_SHEET_URL?.trim();
   if (!url) return "";
   const driveUrl = driveDirectUrl(url, { mode: "download" });
   return driveUrl || url;
@@ -23,7 +21,7 @@ function buildPromotionsXlsxUrl(): string {
 
 async function fetchXlsxArrayBuffer(): Promise<ArrayBuffer | null> {
   try {
-    const url = buildPromotionsXlsxUrl();
+    const url = buildTrendsXlsxUrl();
     if (!url) return null;
     const res = await fetch(url, { next: { revalidate: 600 } });
     if (!res.ok) return null;
@@ -54,7 +52,7 @@ function parseDiscount(value: unknown): number | undefined {
   return Math.max(0, Math.min(90, Math.abs(n)));
 }
 
-async function readLatestOffers(): Promise<Product[]> {
+async function readLatestTrends(): Promise<Product[]> {
   const buffer = await fetchXlsxArrayBuffer();
   if (!buffer) return [];
   try {
@@ -87,28 +85,26 @@ async function readLatestOffers(): Promise<Product[]> {
   }
 }
 
-export default async function OffersPreview() {
-  const products = await readLatestOffers();
+export default async function TrendsPreview() {
+  const products = await readLatestTrends();
 
   if (!products || products.length === 0) {
-    return null; // Don't render the section if no products
+    return null;
   }
 
   return (
     <section className={styles.section}>
       <div className={styles.container}>
         <header className={styles.header}>
-          <h2 className={styles.title}>Специальные предложения</h2>
-          <p className={styles.subtitle}>
-            Откройте для себя наши лучшие акции и эксклюзивные скидки.
-          </p>
+          <h2 className={styles.title}>Тренды</h2>
+          <p className={styles.subtitle}>Актуальные тренды.</p>
         </header>
 
         <OffersGridClient products={products} />
 
         <div className={styles.cta}>
-          <Link href="/promotions" className={styles.ctaButton}>
-            Посмотреть все акции
+          <Link href="/trends" className={styles.ctaButton}>
+            Посмотреть все тренды
           </Link>
         </div>
       </div>

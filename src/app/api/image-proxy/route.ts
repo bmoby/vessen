@@ -34,8 +34,8 @@ export async function GET(req: Request) {
     }
 
     const upstream = await fetch(target.toString(), {
-      // Avoid caching issues on dynamic Drive endpoints
-      cache: "no-store",
+      // Cache agressif côté serveur pour réduire les requêtes répétées
+      cache: "force-cache",
       headers: {
         // Present as a generic browser
         "User-Agent":
@@ -61,7 +61,7 @@ export async function GET(req: Request) {
         "Content-Type": contentType,
         // Cache at the edge for a short time to reduce repeated fetches
         "Cache-Control":
-          "public, max-age=3600, s-maxage=86400, stale-while-revalidate=7200",
+          "public, max-age=7200, s-maxage=86400, stale-while-revalidate=14400",
       },
     });
     return res;

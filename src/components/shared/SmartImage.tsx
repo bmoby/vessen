@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { driveDirectUrl, extractDriveFileId } from "@/helpers/drive";
+
 import { fetchBlobWithCache, getCachedBlobOnly } from "@/helpers/blobCache";
 
 type SmartImageProps = {
@@ -27,18 +27,17 @@ export default function SmartImage({
     const list: string[] = [];
     if (!src) return list;
 
-    // Try Google Drive candidates if we can extract an ID
-    const id = extractDriveFileId(src);
-    if (id) {
-      const view = driveDirectUrl(id, { mode: "view" });
-      if (view) list.push(view);
-      // Thumbnail endpoint can sometimes bypass cookies if public
-      list.push(`https://drive.google.com/thumbnail?id=${id}&sz=w2048`);
-      // Alternate Drive endpoints that sometimes work better depending on edge caches
-      list.push(`https://drive.usercontent.google.com/uc?export=view&id=${id}`);
-      list.push(`https://lh3.googleusercontent.com/d/${id}`);
-      const download = driveDirectUrl(id, { mode: "download" });
-      if (download) list.push(download);
+    // 🚀 ImageKit CDN (nouveau système d'images)
+    if (src.includes("ik.imagekit.io")) {
+      // ImageKit est déjà optimisé, utiliser directement
+      list.push(src);
+
+      // Optionnel : Essayer sans le paramètre updatedAt pour le cache
+      const baseUrl = src.split("?")[0];
+      if (baseUrl !== src) {
+        list.push(baseUrl);
+      }
+      return list;
     }
 
     // Always add normalized original as a fallback
@@ -55,12 +54,7 @@ export default function SmartImage({
       list.push(url);
     }
 
-    // Add proxied versions (server-side fetch) for each candidate to bypass desktop referrer/cookie issues
-    const proxied = list.map(
-      (u) => `/api/image-proxy?src=${encodeURIComponent(u)}`
-    );
-    // Put proxies first to prefer server-side fetch
-    return Array.from(new Set([...proxied, ...list]));
+    return list;
   }, [src]);
 
   const [index, setIndex] = useState(0);
@@ -75,18 +69,37 @@ export default function SmartImage({
     const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
     async function run() {
       if (!candidates.length) return;
-      // Strategy: Try cache first, then proxy, then direct URLs
-      const proxy = candidates.find((c) => c.startsWith("/api/image-proxy"));
-      const key = proxy || candidates[0];
-      
-      // First try to get from cache only (no network request)
-      let blob = await getCachedBlobOnly(key, TWENTY_FOUR_HOURS);
-      
-      // If not in cache, fetch with cache
-      if (!blob) {
-        blob = await fetchBlobWithCache(key, TWENTY_FOUR_HOURS);
+      // 🚀 Stratégie optimisée : Cache → ImageKit → Fallback
+      let blob = null;
+
+      // Essayer chaque candidat dans l'ordre jusqu'à ce qu'un fonctionne
+      for (let i = 0; i < candidates.length && !blob && !isCancelled; i++) {
+        const candidate = candidates[i];
+        console.log(
+          `🔄 Essai candidat ${i + 1}/${candidates.length}: ${candidate}`
+        );
+
+        // 🎯 Cache plus agressif pour ImageKit (CDN fiable)
+        const cacheTime = candidate.includes("ik.imagekit.io")
+          ? 48 * 60 * 60 * 1000 // 48h pour ImageKit
+          : TWENTY_FOUR_HOURS; // 24h pour les autres
+
+        // First try to get from cache only (no network request)
+        blob = await getCachedBlobOnly(candidate, cacheTime);
+
+        // If not in cache, fetch with cache
+        if (!blob) {
+          blob = await fetchBlobWithCache(candidate, cacheTime);
+        }
+
+        if (blob) {
+          console.log(`✅ Candidat ${i + 1} réussi: ${candidate}`);
+          break;
+        } else {
+          console.log(`❌ Candidat ${i + 1} échoué: ${candidate}`);
+        }
       }
-      
+
       if (!blob || isCancelled) return;
       const url = URL.createObjectURL(blob);
       objectUrlRef.current = url;

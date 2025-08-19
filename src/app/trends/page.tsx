@@ -1,10 +1,13 @@
-import Link from "next/link";
-import styles from "./offersPreview.module.css";
-import OffersGridClient from "./OffersGridClient";
+import Header from "@/components/navbar/Header";
+import styles from "@/components/sections/image.module.css";
+import OffersGridClient from "../../components/sections/OffersGridClient";
+import PageGate from "@/components/shared/PageGate";
 import { driveDirectUrl } from "@/helpers/drive";
 import * as XLSX from "xlsx";
 
-export type Product = {
+export const revalidate = 600;
+
+type Product = {
   imageUrl?: string;
   title: string;
   subtitle?: string;
@@ -12,10 +15,8 @@ export type Product = {
   discountPercent?: number;
 };
 
-// Client grid is imported directly; this file is a Server Component passing serializable props
-
-function buildPromotionsXlsxUrl(): string {
-  const url = process.env.PROMOTION_SHEET_URL?.trim();
+function buildTrendsXlsxUrl(): string {
+  const url = process.env.TREND_SHEET_URL?.trim();
   if (!url) return "";
   const driveUrl = driveDirectUrl(url, { mode: "download" });
   return driveUrl || url;
@@ -23,7 +24,7 @@ function buildPromotionsXlsxUrl(): string {
 
 async function fetchXlsxArrayBuffer(): Promise<ArrayBuffer | null> {
   try {
-    const url = buildPromotionsXlsxUrl();
+    const url = buildTrendsXlsxUrl();
     if (!url) return null;
     const res = await fetch(url, { next: { revalidate: 600 } });
     if (!res.ok) return null;
@@ -31,16 +32,6 @@ async function fetchXlsxArrayBuffer(): Promise<ArrayBuffer | null> {
   } catch {
     return null;
   }
-}
-
-function parseXlsxRows(buffer: ArrayBuffer): string[][] {
-  const workbook = XLSX.read(new Uint8Array(buffer), { type: "array" });
-  const firstSheetName = workbook.SheetNames[0];
-  const sheet = workbook.Sheets[firstSheetName];
-  const rows = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1 });
-  return (rows as unknown as unknown[][]).map((r) =>
-    (r ?? []).map((c) => (c == null ? "" : String(c)))
-  );
 }
 
 function parseDiscount(value: unknown): number | undefined {
@@ -54,7 +45,17 @@ function parseDiscount(value: unknown): number | undefined {
   return Math.max(0, Math.min(90, Math.abs(n)));
 }
 
-async function readLatestOffers(): Promise<Product[]> {
+function parseXlsxRows(buffer: ArrayBuffer): string[][] {
+  const workbook = XLSX.read(new Uint8Array(buffer), { type: "array" });
+  const firstSheetName = workbook.SheetNames[0];
+  const sheet = workbook.Sheets[firstSheetName];
+  const rows = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1 });
+  return (rows as unknown as unknown[][]).map((r) =>
+    (r ?? []).map((c) => (c == null ? "" : String(c)))
+  );
+}
+
+async function readTrends(): Promise<Product[]> {
   const buffer = await fetchXlsxArrayBuffer();
   if (!buffer) return [];
   try {
@@ -81,37 +82,29 @@ async function readLatestOffers(): Promise<Product[]> {
         } as Product;
       })
       .filter(Boolean) as Product[];
-    return products.slice(0, 3);
+    return products;
   } catch {
     return [];
   }
 }
 
-export default async function OffersPreview() {
-  const products = await readLatestOffers();
-
-  if (!products || products.length === 0) {
-    return null; // Don't render the section if no products
-  }
+export default async function TrendsPage() {
+  const products = await readTrends();
 
   return (
-    <section className={styles.section}>
-      <div className={styles.container}>
-        <header className={styles.header}>
-          <h2 className={styles.title}>Специальные предложения</h2>
-          <p className={styles.subtitle}>
-            Откройте для себя наши лучшие акции и эксклюзивные скидки.
-          </p>
-        </header>
-
-        <OffersGridClient products={products} />
-
-        <div className={styles.cta}>
-          <Link href="/promotions" className={styles.ctaButton}>
-            Посмотреть все акции
-          </Link>
-        </div>
-      </div>
-    </section>
+    <main>
+      <PageGate>
+        <Header />
+        <section className={styles.section}>
+          <div className={styles.container}>
+            <header className={styles.header}>
+              <h1 className={styles.title}>Тренды</h1>
+              <p className={styles.subtitle}>Актуальные тренды.</p>
+            </header>
+            <OffersGridClient products={products} />
+          </div>
+        </section>
+      </PageGate>
+    </main>
   );
 }
