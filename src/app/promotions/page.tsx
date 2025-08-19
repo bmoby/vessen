@@ -2,6 +2,8 @@ import Header from "@/components/navbar/Header";
 import styles from "@/components/sections/image.module.css";
 import OffersGridClient from "../../components/sections/OffersGridClient";
 import PageGate from "@/components/shared/PageGate";
+import { driveDirectUrl } from "@/helpers/drive";
+import * as XLSX from "xlsx";
 
 export const revalidate = 600;
 type Product = {
@@ -12,21 +14,21 @@ type Product = {
   discountPercent?: number;
 };
 
-function buildProductsSheetExportUrl(): string {
-  const sheetId = process.env.PRODUCTS_SHEET_ID || process.env.BLOG_SHEET_ID; // Fallback to blog sheet for now
-  const gid = process.env.PRODUCTS_SHEET_GID || process.env.BLOG_SHEET_GID; // optional
-  if (!sheetId) return "";
-  const base = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
-  return gid ? `${base}&gid=${gid}` : base;
+function buildPromotionsXlsxUrl(): string {
+  const url = process.env.PROMOTION_SHEET_URL?.trim();
+  if (!url) return "";
+  // Support Google Drive links transparently
+  const driveUrl = driveDirectUrl(url, { mode: "download" });
+  return driveUrl || url;
 }
 
-async function fetchCsvText(): Promise<string | null> {
+async function fetchXlsxArrayBuffer(): Promise<ArrayBuffer | null> {
   try {
-    const url = buildProductsSheetExportUrl();
+    const url = buildPromotionsXlsxUrl();
     if (!url) return null;
     const res = await fetch(url, { next: { revalidate: 600 } });
     if (!res.ok) return null;
-    return await res.text();
+    return await res.arrayBuffer();
   } catch {
     return null;
   }
@@ -44,63 +46,24 @@ function parseDiscount(value: unknown): number | undefined {
   return Math.max(0, Math.min(90, Math.abs(n)));
 }
 
-function parseCsv(csv: string): string[][] {
-  const rows: string[][] = [];
-  let current: string[] = [];
-  let field = "";
-  let inQuotes = false;
-  for (let i = 0; i < csv.length; i++) {
-    const char = csv[i];
-    if (inQuotes) {
-      if (char === '"') {
-        const next = csv[i + 1];
-        if (next === '"') {
-          field += '"';
-          i++;
-        } else {
-          inQuotes = false;
-        }
-      } else {
-        field += char;
-      }
-    } else {
-      if (char === '"') {
-        inQuotes = true;
-      } else if (char === ",") {
-        current.push(field);
-        field = "";
-      } else if (char === "\n") {
-        current.push(field);
-        rows.push(current);
-        current = [];
-        field = "";
-      } else if (char === "\r") {
-        // ignore
-      } else {
-        field += char;
-      }
-    }
-  }
-  if (field.length > 0 || current.length > 0) {
-    current.push(field);
-    rows.push(current);
-  }
-  return rows;
+function parseXlsxRows(buffer: ArrayBuffer): string[][] {
+  const workbook = XLSX.read(new Uint8Array(buffer), { type: "array" });
+  const firstSheetName = workbook.SheetNames[0];
+  const sheet = workbook.Sheets[firstSheetName];
+  const rows = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1 });
+  // Ensure a 2D array of strings
+  return (rows as unknown as unknown[][]).map((r) =>
+    (r ?? []).map((c) => (c == null ? "" : String(c)))
+  );
 }
 
-async function readFeaturedProducts(): Promise<{
-  products: Product[];
-  downloadUrl: string;
-}> {
-  const url = buildProductsSheetExportUrl();
-  const downloadUrl = url || "#";
+async function readFeaturedProducts(): Promise<Product[]> {
+  const buffer = await fetchXlsxArrayBuffer();
+  if (!buffer) return [];
   try {
-    const csv = await fetchCsvText();
-    if (!csv) return { products: [], downloadUrl };
-    const rows = parseCsv(csv);
-    if (!rows || rows.length < 2) return { products: [], downloadUrl };
+    const rows = parseXlsxRows(buffer);
+    if (!rows || rows.length < 2) return [];
     const dataRows = rows.slice(1);
-
     const products: Product[] = dataRows
       .map((row) => {
         const imageUrl = String(row[0] ?? "").trim();
@@ -121,15 +84,14 @@ async function readFeaturedProducts(): Promise<{
         } as Product;
       })
       .filter(Boolean) as Product[];
-
-    return { products, downloadUrl };
+    return products;
   } catch {
-    return { products: [], downloadUrl };
+    return [];
   }
 }
 
 export default async function FeaturedProductsPage() {
-  const { products } = await readFeaturedProducts();
+  const products = await readFeaturedProducts();
 
   return (
     <main>

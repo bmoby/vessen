@@ -4,6 +4,7 @@ import Hero from "@/components/hero/Hero";
 import Strengths from "@/components/sections/Strengths";
 import BrandStory from "@/components/sections/BrandStory";
 import OffersPreview from "@/components/sections/OffersPreview";
+import TrendsPreview from "@/components/sections/TrendsPreview";
 import ContactCta from "@/components/sections/ContactCta";
 import Footer from "@/components/footer/Footer";
 import PageGate from "@/components/shared/PageGate";
@@ -18,6 +19,7 @@ export default function HomePage() {
         <Header variant="over-hero" />
         <Hero />
         <OffersPreview />
+        <TrendsPreview />
         <Strengths />
         <BrandStory />
         <ContactCta />

@@ -86,13 +86,13 @@ export default function Products({
         </div>
         <div className={styles.toolsRight}>
           <div className={styles.count}>{filteredRows.length} позиций</div>
-          <a
-            href={downloadUrl ?? "/pricelist.xls"}
-            className={styles.downloadTextLink}
-            download
-          >
-            Скачать
-          </a>
+
+          {/* 🎯 Bouton de téléchargement */}
+          {downloadUrl && (
+            <a href={downloadUrl} className={styles.downloadTextLink} download>
+              Скачать
+            </a>
+          )}
         </div>
       </div>
 

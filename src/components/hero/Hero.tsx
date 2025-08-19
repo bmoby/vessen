@@ -17,7 +17,7 @@ export default function Hero() {
             <Link href="/products" className={styles.cta}>
               Прайслист
             </Link>
-            <Link href="/blog" className={styles.cta}>
+            <Link href="/promotions" className={styles.cta}>
               Акции
             </Link>
           </div>

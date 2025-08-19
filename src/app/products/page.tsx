@@ -15,21 +15,22 @@ function makeUniqueHeaders(headers: string[]): string[] {
   });
 }
 
-function buildGoogleSheetsExportUrl(): string {
-  const sheetId = process.env.PRICE_SHEET_ID;
-  const gid = process.env.PRICE_SHEET_GID; // optional specific tab
-  const base = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=xlsx`;
-  return gid ? `${base}&gid=${gid}` : base;
-}
-
 async function fetchWorkbookBuffer(): Promise<Buffer | null> {
   try {
-    const url = buildGoogleSheetsExportUrl();
+    const url = process.env.PRICE_SHEET_URL;
+    if (!url) {
+      console.error(
+        "❌ SHEET_URL non définie dans les variables d'environnement"
+      );
+      return null;
+    }
+
     const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) return null;
     const arrayBuffer = await res.arrayBuffer();
     return Buffer.from(new Uint8Array(arrayBuffer));
-  } catch {
+  } catch (error) {
+    console.error("❌ Erreur lors du chargement du pricelist:", error);
     return null;
   }
 }
@@ -42,9 +43,12 @@ async function readProductsFromXls() {
         columns: [],
         rows: [],
         displayLabels: [],
-        downloadUrl: buildGoogleSheetsExportUrl(),
+        downloadUrl: process.env.PRICE_SHEET_URL || "",
       };
-    const workbook = XLSX.read(fileBuffer, { type: "buffer" });
+    const workbook = XLSX.read(fileBuffer, {
+      type: "buffer",
+      cellFormula: false,
+    });
     const firstSheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[firstSheetName];
     if (!worksheet)
@@ -52,7 +56,7 @@ async function readProductsFromXls() {
         columns: [],
         rows: [],
         displayLabels: [],
-        downloadUrl: buildGoogleSheetsExportUrl(),
+        downloadUrl: process.env.PRICE_SHEET_URL || "",
       };
 
     // Read as an array of arrays to better control headers/empty rows
@@ -67,7 +71,7 @@ async function readProductsFromXls() {
         columns: [],
         rows: [],
         displayLabels: [],
-        downloadUrl: buildGoogleSheetsExportUrl(),
+        downloadUrl: process.env.PRICE_SHEET_URL || "",
       };
 
     // Choose the header row as the one with the highest number of non-empty cells within the top 30 rows
@@ -160,7 +164,7 @@ async function readProductsFromXls() {
       columns,
       rows: mapped,
       displayLabels,
-      downloadUrl: buildGoogleSheetsExportUrl(),
+      downloadUrl: process.env.PRICE_SHEET_URL || "",
     };
   } catch (error) {
     console.error("Failed to read pricelist.xls", error);
@@ -168,7 +172,7 @@ async function readProductsFromXls() {
       columns: [],
       rows: [],
       displayLabels: [],
-      downloadUrl: buildGoogleSheetsExportUrl(),
+      downloadUrl: process.env.PRICE_SHEET_URL || "",
     };
   }
 }
