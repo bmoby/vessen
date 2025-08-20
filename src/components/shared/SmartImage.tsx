@@ -62,50 +62,65 @@ export default function SmartImage({
   const [exhausted, setExhausted] = useState(false);
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
   const objectUrlRef = useRef<string | null>(null);
+  const isMobile = useRef(false);
+
+  // Detect mobile once on mount
+  useEffect(() => {
+    isMobile.current = window.innerWidth <= 768;
+  }, []);
 
   // Attempt to serve from IndexedDB blob cache with 24h TTL
   useEffect(() => {
     let isCancelled = false;
     const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+
     async function run() {
       if (!candidates.length) return;
+
       // 🚀 Stratégie optimisée : Cache → ImageKit → Fallback
       let blob = null;
 
       // Essayer chaque candidat dans l'ordre jusqu'à ce qu'un fonctionne
       for (let i = 0; i < candidates.length && !blob && !isCancelled; i++) {
         const candidate = candidates[i];
-        console.log(
-          `🔄 Essai candidat ${i + 1}/${candidates.length}: ${candidate}`
-        );
 
         // 🎯 Cache plus agressif pour ImageKit (CDN fiable)
         const cacheTime = candidate.includes("ik.imagekit.io")
           ? 48 * 60 * 60 * 1000 // 48h pour ImageKit
           : TWENTY_FOUR_HOURS; // 24h pour les autres
 
-        // First try to get from cache only (no network request)
-        blob = await getCachedBlobOnly(candidate, cacheTime);
+        // On mobile, try cache first but fallback faster
+        if (isMobile.current) {
+          blob = await getCachedBlobOnly(candidate, cacheTime);
+          if (!blob) {
+            // Quick fallback to direct URL on mobile to reduce flickering
+            break;
+          }
+        } else {
+          // First try to get from cache only (no network request)
+          blob = await getCachedBlobOnly(candidate, cacheTime);
 
-        // If not in cache, fetch with cache
-        if (!blob) {
-          blob = await fetchBlobWithCache(candidate, cacheTime);
+          // If not in cache, fetch with cache
+          if (!blob) {
+            blob = await fetchBlobWithCache(candidate, cacheTime);
+          }
         }
 
         if (blob) {
-          console.log(`✅ Candidat ${i + 1} réussi: ${candidate}`);
           break;
-        } else {
-          console.log(`❌ Candidat ${i + 1} échoué: ${candidate}`);
         }
       }
 
       if (!blob || isCancelled) return;
+
+      // Create object URL only if we have a blob
       const url = URL.createObjectURL(blob);
       objectUrlRef.current = url;
       setObjectUrl(url);
     }
+
     run();
+
     return () => {
       isCancelled = true;
       if (objectUrlRef.current) {
@@ -114,6 +129,7 @@ export default function SmartImage({
       }
     };
   }, [candidates]);
+
   if (!hasCandidates && !exhausted) return null;
 
   return (
