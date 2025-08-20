@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import styles from "./offersPreview.module.css";
 import modal from "./offersModal.module.css";
 import SmartImage from "../shared/SmartImage";
@@ -21,50 +22,71 @@ export default function OffersGridClient({ products }: OffersGridClientProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const detailsRef = useRef<HTMLDivElement | null>(null);
   const [imageMaxHeight, setImageMaxHeight] = useState<number | null>(null);
-  const [modalImageReady, setModalImageReady] = useState<boolean>(false);
-  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
+  const [modalImageReady, setModalImageReady] = useState<boolean>(true); // Start ready
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  const touchStartYRef = useRef<number | null>(null);
+  const [portalRoot, setPortalRoot] = useState<HTMLElement | null>(null);
 
   const selected = useMemo(
     () => (selectedIndex != null ? products[selectedIndex] : null),
     [selectedIndex, products]
   );
 
-  const close = useCallback(() => setSelectedIndex(null), []);
-
-  // Navigation between products inside the modal is disabled by design
-
-  const openModal = useCallback(async (idx: number) => {
-    // No need to prefetch - the image is already loaded in the grid
-    // Just open the modal immediately
-    setSelectedIndex(idx);
+  useEffect(() => {
+    if (typeof document !== "undefined") setPortalRoot(document.body);
   }, []);
+
+  const closeDirect = useCallback(() => setSelectedIndex(null), []);
+
+  // Open with history integration for natural back-close
+  const openModal = useCallback(async (idx: number) => {
+    setSelectedIndex(idx);
+    if (typeof window !== "undefined") {
+      window.history.pushState({ modal: true }, "", window.location.href);
+    }
+    if (typeof window !== "undefined" && window.innerWidth <= 768) {
+      setModalImageReady(true);
+    }
+  }, []);
+
+  const close = useCallback(() => {
+    if (typeof window !== "undefined" && window.history.state?.modal) {
+      window.history.back();
+    } else {
+      closeDirect();
+    }
+  }, [closeDirect]);
 
   useEffect(() => {
     if (selectedIndex == null) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") close();
     };
+    const onPop = () => {
+      closeDirect();
+    };
     document.addEventListener("keydown", onKey);
-    // Optional: lock scroll while modal open
+    window.addEventListener("popstate", onPop);
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       document.removeEventListener("keydown", onKey);
+      window.removeEventListener("popstate", onPop);
       document.body.style.overflow = prevOverflow;
     };
-  }, [selectedIndex, close]);
+  }, [selectedIndex, close, closeDirect]);
 
-  // Recompute a safe max height for the image, so the dialog never touches header/footer
   useEffect(() => {
     if (selectedIndex == null) return;
     let raf = 0;
-    const SAFE_TOP = 72; // match overlay padding top baseline
-    const SAFE_BOTTOM = 48; // match overlay padding bottom baseline
+    const SAFE_TOP = 72;
+    const SAFE_BOTTOM = 48;
     const recompute = () => {
       const viewportH = window.innerHeight;
       const availableH = viewportH - SAFE_TOP - SAFE_BOTTOM;
       const detailsH = detailsRef.current?.offsetHeight ?? 0;
-      const chrome = 24; // borders/margins buffer
+      const chrome = 24;
       const maxH = Math.max(160, availableH - detailsH - chrome);
       setImageMaxHeight(maxH);
     };
@@ -80,13 +102,84 @@ export default function OffersGridClient({ products }: OffersGridClientProps) {
     };
   }, [selectedIndex]);
 
-  // Check if modal image is already loaded from grid
-  useEffect(() => {
-    if (selectedIndex != null && selected?.imageUrl) {
-      const isAlreadyLoaded = loadedImages.has(selected.imageUrl);
-      setModalImageReady(isAlreadyLoaded);
-    }
-  }, [selectedIndex, selected?.imageUrl, loadedImages]);
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    if (typeof window === "undefined" || window.innerWidth > 768) return;
+    const atTop = (contentRef.current?.scrollTop ?? 0) <= 0;
+    if (!atTop) return;
+    touchStartYRef.current = e.touches[0].clientY;
+  }, []);
+
+  const onTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      if (typeof window === "undefined" || window.innerWidth > 768) return;
+      if (touchStartYRef.current == null) return;
+      const endY = e.changedTouches[0].clientY;
+      const deltaY = endY - touchStartYRef.current;
+      touchStartYRef.current = null;
+      if (deltaY > 80) close();
+    },
+    [close]
+  );
+
+  const modalNode = selected ? (
+    <div className={modal.overlay} onClick={close}>
+      <div
+        className={modal.dialog}
+        role="dialog"
+        aria-modal="true"
+        aria-label={selected.title}
+        onClick={(e) => e.stopPropagation()}
+        style={{ width: "auto" }}
+        ref={dialogRef}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
+        <button className={modal.close} onClick={close} aria-label="Close">
+          ×
+        </button>
+        <div className={modal.content} ref={contentRef}>
+          <div className={modal.mediaWrap}>
+            {selected.imageUrl ? (
+              <div
+                style={{
+                  position: "relative",
+                  opacity: modalImageReady ? 1 : 0,
+                  transition: "opacity 180ms ease-out",
+                }}
+              >
+                <SmartImage
+                  src={selected.imageUrl}
+                  alt={selected.title}
+                  className={`${modal.media}${
+                    imageMaxHeight ? ` max-h-[${imageMaxHeight}px]` : ""
+                  }`}
+                  loading="eager"
+                  critical
+                  onLoad={() => setModalImageReady(true)}
+                />
+              </div>
+            ) : null}
+          </div>
+          <div
+            className={modal.details}
+            ref={detailsRef}
+            style={{
+              opacity: modalImageReady ? 1 : 0,
+              transition: "opacity 180ms ease-out",
+            }}
+          >
+            <h3 className={modal.title}>{selected.title}</h3>
+            {selected.subtitle ? (
+              <p className={modal.subtitle}>{selected.subtitle}</p>
+            ) : null}
+            {selected.description ? (
+              <p className={modal.description}>{selected.description}</p>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </div>
+  ) : null;
 
   return (
     <>
@@ -109,13 +202,6 @@ export default function OffersGridClient({ products }: OffersGridClientProps) {
                   alt={product.title}
                   className={styles.cover}
                   critical
-                  onLoad={() => {
-                    if (product.imageUrl) {
-                      setLoadedImages((prev) =>
-                        new Set(prev).add(product.imageUrl!)
-                      );
-                    }
-                  }}
                 />
                 <span className={styles.mediaGlow} />
                 {product.discountPercent && product.discountPercent > 0 && (
@@ -138,86 +224,7 @@ export default function OffersGridClient({ products }: OffersGridClientProps) {
         ))}
       </div>
 
-      {selected && (
-        <div className={modal.overlay} onClick={close}>
-          <div
-            className={modal.dialog}
-            role="dialog"
-            aria-modal="true"
-            aria-label={selected.title}
-            onClick={(e) => e.stopPropagation()}
-            style={{ width: "auto" }}
-          >
-            <button className={modal.close} onClick={close} aria-label="Close">
-              ×
-            </button>
-            <div className={modal.content}>
-              <div className={modal.mediaWrap}>
-                {selected.imageUrl ? (
-                  <div
-                    style={{
-                      position: "relative",
-                      opacity: modalImageReady ? 1 : 0,
-                      transition: "opacity 220ms ease",
-                    }}
-                  >
-                    <SmartImage
-                      src={selected.imageUrl}
-                      alt={selected.title}
-                      className={`${modal.media}${
-                        imageMaxHeight ? ` max-h-[${imageMaxHeight}px]` : ""
-                      }`}
-                      loading="eager"
-                      critical
-                      onLoad={() => setModalImageReady(true)}
-                    />
-                    {!modalImageReady && (
-                      <div
-                        aria-hidden
-                        style={{
-                          position: "absolute",
-                          inset: 0,
-                          display: "grid",
-                          placeItems: "center",
-                          background: "rgba(0,0,0,0.1)",
-                        }}
-                      >
-                        {/* Lightweight inline spinner */}
-                        <div
-                          style={{
-                            width: 32,
-                            height: 32,
-                            border: "3px solid rgba(255,255,255,0.6)",
-                            borderTopColor: "transparent",
-                            borderRadius: "50%",
-                            animation: "spin 1s linear infinite",
-                          }}
-                        />
-                      </div>
-                    )}
-                  </div>
-                ) : null}
-              </div>
-              <div
-                className={modal.details}
-                ref={detailsRef}
-                style={{
-                  opacity: modalImageReady ? 1 : 0,
-                  transition: "opacity 220ms ease",
-                }}
-              >
-                <h3 className={modal.title}>{selected.title}</h3>
-                {selected.subtitle ? (
-                  <p className={modal.subtitle}>{selected.subtitle}</p>
-                ) : null}
-                {selected.description ? (
-                  <p className={modal.description}>{selected.description}</p>
-                ) : null}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {portalRoot && modalNode ? createPortal(modalNode, portalRoot) : null}
     </>
   );
 }

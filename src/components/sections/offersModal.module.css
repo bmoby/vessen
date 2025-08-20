@@ -9,7 +9,7 @@
   padding: calc(72px + env(safe-area-inset-top)) 24px
     calc(48px + env(safe-area-inset-bottom));
   z-index: 1000;
-  animation: overlayIn 260ms ease forwards;
+  animation: overlayIn 200ms ease forwards; /* Reduced from 260ms */
 }
 
 @keyframes overlayIn {
@@ -40,13 +40,14 @@
     0 8px 30px rgba(122, 78, 57, 0.18);
   overflow: hidden;
   transform-origin: center;
-  animation: dialogIn 320ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  animation: dialogIn 240ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards; /* Reduced from 320ms */
+  overscroll-behavior: contain;
 }
 
 @keyframes dialogIn {
   from {
     opacity: 0;
-    transform: translateY(10px) scale(0.98);
+    transform: translateY(8px) scale(0.99); /* Reduced movement */
   }
   to {
     opacity: 1;
@@ -62,7 +63,7 @@
   height: 36px;
   border-radius: 999px;
   border: 1px solid rgba(240, 217, 154, 0.7);
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.9);
   color: #7a4e39;
   cursor: pointer;
   font-size: 22px;
@@ -71,6 +72,7 @@
   place-items: center;
   box-shadow: 0 4px 16px rgba(122, 78, 57, 0.25);
   transition: background 160ms ease, transform 120ms ease;
+  z-index: 5; /* above image */
 }
 
 .close:hover {
@@ -84,7 +86,8 @@
   display: block;
   max-height: inherit;
   overflow: auto;
-  overscroll-behavior: contain;
+  overscroll-behavior: contain; /* Prevent parent scroll chaining */
+  -webkit-overflow-scrolling: touch; /* Smooth iOS scrolling */
 }
 
 .mediaWrap {
@@ -164,6 +167,36 @@
   right: 8px;
 }
 
+.closeBar {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.92) 24%,
+    rgba(255, 255, 255, 0.98) 100%
+  );
+  border-top: 1px solid rgba(240, 217, 154, 0.5);
+  display: grid;
+}
+
+.closeBarBtn {
+  appearance: none;
+  border: 1px solid rgba(240, 217, 154, 0.8);
+  border-radius: 999px;
+  background: #fff;
+  color: #7a4e39;
+  padding: 10px 16px;
+  font-size: 16px;
+  font-weight: 600;
+  justify-self: center;
+  min-width: 200px;
+  box-shadow: 0 6px 24px rgba(122, 78, 57, 0.18);
+}
+
 @media (max-width: 900px) {
   .dialog {
     max-width: min(720px, 96vw);
@@ -178,5 +211,53 @@
 @media (max-width: 600px) {
   .dialog {
     border-radius: 12px;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .overlay {
+    animation: overlayIn 160ms ease forwards; /* Even faster on mobile */
+    padding: 0; /* Fullscreen overlay, no padding */
+  }
+
+  .dialog {
+    width: 100vw;
+    height: 100dvh; /* Account for Safari dynamic bars */
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+    border: none;
+    animation: dialogIn 180ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards; /* Faster on mobile */
+  }
+
+  .content {
+    max-height: none;
+    height: 100%;
+  }
+
+  .media {
+    max-height: 65dvh; /* Leave more room for content */
+  }
+
+  /* Avoid nested scrolls: the content scrolls, details does not */
+  .details {
+    max-height: none;
+    overflow: visible;
+    padding-bottom: calc(
+      env(safe-area-inset-bottom) + 28px
+    ); /* breathing room */
+  }
+
+  .close {
+    width: 44px;
+    height: 44px;
+    top: calc(env(safe-area-inset-top) + 8px);
+    right: calc(env(safe-area-inset-right, 0px) + 8px);
+  }
+
+  .closeBarBtn {
+    width: 100%;
+    max-width: 520px;
   }
 }
